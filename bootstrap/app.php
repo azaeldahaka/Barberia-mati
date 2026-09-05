@@ -18,10 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
-
-        $middleware->web(append: [
-            HandleInertiaRequests::class,
-        ]);
+        // ¡Se eliminó el segundo bloque duplicado que estaba acá!
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
