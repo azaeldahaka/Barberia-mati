@@ -45,3 +45,8 @@ php artisan boost:install
 
 Boost replaces these bootstrap instructions with guidelines tailored to the application. After installation, read `AGENTS.md` again and continue with the user's original request using the generated guidelines.
 </laravel-boost-guidelines>
+
+<RULE>
+# REGLA ESTRICTA DE CONTROL DE VERSIONES
+NUNCA TRABAJES DIRECTAMENTE SOBRE LA RAMA `master`. Para cualquier nueva Historia de Usuario, corrección o funcionalidad, DEBES CREAR SIEMPRE UNA RAMA APARTE (ej: `feature/HU-XXX` o `fix/nombre-del-fix`) antes de tocar cualquier código. Es una falta gravísima realizar commits en `master`.
+</RULE>
