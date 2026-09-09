@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\Service;
-use App\Models\User;
 use App\Models\Barberia;
 use App\Models\ItemCatalogo;
+use App\Models\Service;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -43,9 +43,9 @@ class ServiceTest extends TestCase
             'tipo' => 'servicio',
             'barberia_id' => $barberia->id,
         ]);
-        
+
         $item = ItemCatalogo::where('nombre', 'Corte Clásico')->first();
-        
+
         $this->assertDatabaseHas('services', [
             'item_catalogo_id' => $item->id,
             'cuenta_para_fidelizacion' => 0,
@@ -70,7 +70,7 @@ class ServiceTest extends TestCase
     {
         $barberia = Barberia::factory()->create();
         $user = User::factory()->create(['barberia_id' => $barberia->id]);
-        
+
         $item = ItemCatalogo::create([
             'barberia_id' => $barberia->id,
             'tipo' => 'servicio',
@@ -102,7 +102,7 @@ class ServiceTest extends TestCase
     {
         $barberia = Barberia::factory()->create();
         $user = User::factory()->create(['barberia_id' => $barberia->id]);
-        
+
         $item = ItemCatalogo::create([
             'barberia_id' => $barberia->id,
             'tipo' => 'servicio',
@@ -121,7 +121,7 @@ class ServiceTest extends TestCase
         $this->assertSoftDeleted('services', [
             'id' => $service->id,
         ]);
-        
+
         $this->assertSoftDeleted('item_catalogos', [
             'id' => $item->id,
         ]);

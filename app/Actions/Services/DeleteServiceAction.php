@@ -10,7 +10,7 @@ class DeleteServiceAction
     {
         // Delete the service first
         $service->delete();
-        
+
         // Then delete the item catalogo associated
         if ($service->itemCatalogo) {
             $service->itemCatalogo->delete();

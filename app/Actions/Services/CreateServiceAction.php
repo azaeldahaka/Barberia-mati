@@ -2,8 +2,8 @@
 
 namespace App\Actions\Services;
 
-use App\Models\Service;
 use App\Models\ItemCatalogo;
+use App\Models\Service;
 
 class CreateServiceAction
 {
