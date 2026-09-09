@@ -20,9 +20,9 @@ class AssignDefaultRoleToUser
             $user->save();
         }
 
-        $role = Role::firstOrCreate(['name' => 'Dueño']);
+        $role = Role::firstOrCreate(['name' => 'Cliente']);
 
-        if (! $user->hasRole('Dueño')) {
+        if (! $user->hasRole('Cliente')) {
             $user->roles()->syncWithoutDetaching([$role->id]);
         }
     }
