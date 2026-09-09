@@ -14,7 +14,7 @@ class StoreServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255', 'unique:services'],
+            'name' => ['required', 'string', 'max:255', 'unique:item_catalogos,nombre'],
             'duration_minutes' => ['required', 'integer', 'min:1'],
             'price' => ['required', 'numeric', 'min:0'],
         ];

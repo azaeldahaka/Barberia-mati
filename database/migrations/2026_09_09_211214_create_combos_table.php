@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('services', function (Blueprint $table) {
-            $table->id();
-            $table->string('name')->unique();
-            $table->integer('duration_minutes');
-            $table->decimal('price', 8, 2);
+        Schema::create('combos', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->foreignUuid('item_catalogo_id')->constrained('item_catalogos')->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('services');
+        Schema::dropIfExists('combos');
     }
 };

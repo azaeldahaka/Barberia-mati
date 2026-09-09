@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('barberias', function (Blueprint $table) {
+        Schema::create('combo_servicio', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('nombre');
-            $table->string('horario_apertura')->default('12:00');
-            $table->string('horario_cierre')->default('22:00');
+            $table->foreignUuid('combo_id')->constrained('combos')->onDelete('cascade');
+            $table->foreignUuid('servicio_id')->constrained('services')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('barberias');
+        Schema::dropIfExists('combo_servicio');
     }
 };

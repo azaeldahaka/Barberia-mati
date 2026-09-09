@@ -8,21 +8,25 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Service extends Model
+class ItemCatalogo extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
 
     protected $fillable = [
-        'item_catalogo_id',
-        'cuenta_para_fidelizacion',
+        'barberia_id',
+        'tipo',
+        'nombre',
+        'precio',
+        'duracion_minutos',
     ];
 
     protected $casts = [
-        'cuenta_para_fidelizacion' => 'boolean',
+        'precio' => 'decimal:2',
+        'duracion_minutos' => 'integer',
     ];
 
-    public function itemCatalogo(): BelongsTo
+    public function barberia(): BelongsTo
     {
-        return $this->belongsTo(ItemCatalogo::class);
+        return $this->belongsTo(Barberia::class);
     }
 }

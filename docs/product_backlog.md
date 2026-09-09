@@ -128,9 +128,10 @@ Campos por HU: `id`, `módulo`, `título`, `prioridad`, `sprint sugerido`, `adr 
 - **Prioridad:** Must · **Sprint sugerido:** 1 · **ADR relacionado:** —
 - **Como** dueño, **quiero** dar de alta, modificar o eliminar los servicios que ofrezco, **para** mantener actualizado el catálogo (nombre, duración, precio) sin depender de un desarrollador.
 - **Criterios de aceptación:**
-  - Cada servicio tiene nombre, duración (minutos) y precio.
+  - El servicio expone nombre, duración (minutos) y precio a través de su relación con `Item_Catalogo` (ver `glosario_datos.md`, entidades ITEM_CATALOGO y SERVICIO) — estos campos NO viven directamente en la tabla de Servicio.
   - El precio es único por servicio (no varía por barbero).
   - No se puede eliminar un servicio que ya tiene turnos históricos asociados (se desactiva en su lugar).
+- **Nota:** esta HU requiere crear primero (o junto con esta HU) el modelo `Item_Catalogo` según el glosario. Un servicio con campos `name`/`duration_minutes`/`price` propios, sin pasar por `Item_Catalogo`, no cumple este criterio de aceptación aunque funcionalmente "parezca" andar — ver ADR-03 y la sección 3 del glosario (decisiones de modelado) para el porqué de este patrón.
 
 ### HU-SER-02 — Combos de servicios con precio propio
 - **Prioridad:** Must · **Sprint sugerido:** 2 · **ADR relacionado:** —

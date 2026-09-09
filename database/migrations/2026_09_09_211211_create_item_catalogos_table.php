@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Barberia;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,12 +12,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('barberias', function (Blueprint $table) {
+        Schema::create('item_catalogos', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->foreignIdFor(Barberia::class)->constrained();
+            $table->enum('tipo', ['servicio', 'combo']);
             $table->string('nombre');
-            $table->string('horario_apertura')->default('12:00');
-            $table->string('horario_cierre')->default('22:00');
+            $table->decimal('precio', 8, 2);
+            $table->integer('duracion_minutos');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -25,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('barberias');
+        Schema::dropIfExists('item_catalogos');
     }
 };
