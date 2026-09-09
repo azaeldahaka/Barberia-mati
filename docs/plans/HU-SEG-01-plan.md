@@ -28,7 +28,7 @@ Implementación del sistema de autenticación utilizando Laravel Breeze (React/I
 
 ### Backend — Actions
 #### [NEW] `app/Actions/Auth/LoginUserWithGoogle.php`
-- Acción encargada de recibir la data de Socialite, buscar o crear al usuario, usar `AssignDefaultRoleToUser` si es nuevo, y loguearlo.
+- Acción encargada de recibir la data de Socialite, buscar o crear al usuario, usar `AssignDefaultRoleToUser` si es nuevo para asignar rol y tenant por defecto, y loguearlo.
 
 ### Backend — FormRequests/Controllers
 #### [NEW] `app/Http/Controllers/Auth/GoogleLoginController.php`

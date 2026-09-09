@@ -32,6 +32,9 @@ class GoogleLoginController extends Controller
 
         $loginUserWithGoogle->handle($googleUser);
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $user = auth()->user();
+        $redirectRoute = $user && $user->hasRole('Cliente') ? '/' : route('dashboard', absolute: false);
+
+        return redirect()->intended($redirectRoute);
     }
 }
