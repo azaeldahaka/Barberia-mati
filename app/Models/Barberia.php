@@ -10,7 +10,7 @@ class Barberia extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $fillable = ['nombre'];
+    protected $fillable = ['nombre', 'horario_apertura', 'horario_cierre'];
 
     public function users()
     {
