@@ -1,6 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 
-export default function Welcome({ auth, laravelVersion, phpVersion }) {
+export default function Welcome({ auth, flash, laravelVersion, phpVersion }) {
     const handleImageError = () => {
         document
             .getElementById('screenshot-container')
@@ -54,15 +54,21 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                             Log in
                                         </Link>
                                         <Link
-                                            href={route('register')}
-                                            className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+                                            href={route('client.register')}
+                                            className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white font-bold"
                                         >
-                                            Register
+                                            Soy Cliente (Autoregistro)
                                         </Link>
                                     </>
                                 )}
                             </nav>
                         </header>
+
+                        {flash && flash.status && (
+                            <div className="mb-4 text-green-600 bg-green-100 p-4 rounded-md">
+                                {flash.status}
+                            </div>
+                        )}
 
                         <main className="mt-6">
                             <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
