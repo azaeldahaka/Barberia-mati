@@ -1,12 +1,14 @@
 # Glosario de Datos — Sistema de Gestión de Turnos (Barbería)
 
 **Versión:** 1.0
-**Complementa a:** Diagrama Entidad-Relación (`DER_Barberia_v1.dot` / `.png` / `.svg`)
-**Fuente de verdad de este contenido:** este archivo. Si se modifica, propagar los cambios también a `Glosario_Datos_Barberia_v1.docx`.
+**Complementa a:** Diagrama Entidad-Relación (DER) — `DER_Barberia_v1.dot` / `.png` / `.svg`
+**Fuente de verdad:** este archivo. Si se modifica, replicar los cambios en `Glosario_Datos_Barberia_v1.docx`.
 
-## 1. Propósito
+## 1. Propósito de este documento
 
-Este glosario describe cada entidad (tabla) del modelo de datos: su propósito de negocio, sus campos, sus relaciones con otras entidades, y con qué Historia de Usuario (HU) del backlog se relaciona. El DER muestra la estructura visual; este documento explica el porqué de cada tabla y cada decisión de modelado.
+Este glosario describe cada entidad (tabla) del modelo de datos, su propósito de negocio, sus campos y sus relaciones con otras entidades. Complementa al DER: mientras el diagrama muestra la estructura visual, este documento explica el porqué de cada tabla y cada decisión de modelado.
+
+Cada entidad indica con qué Historia de Usuario (HU) del Product Backlog se relaciona principalmente, para facilitar la trazabilidad entre el modelo de datos y el trabajo de desarrollo.
 
 ## 2. Entidades del modelo
 
@@ -83,7 +85,7 @@ Entidad unificadora que representa cualquier "cosa agendable y con precio": un S
 |---|---|---|
 | `id` | uuid (PK) | Identificador único del ítem de catálogo. |
 | `barberia_id` | uuid (FK) | Barbería a la que pertenece este ítem. |
-| `tipo` | string | Indica si el ítem es `servicio` o `combo`. |
+| `tipo` | string | Indica si el ítem es 'servicio' o 'combo'. |
 | `nombre` | string | Nombre visible del ítem (ej. "Corte", "Combo Corte + Barba"). |
 | `precio` | decimal | Precio de venta del ítem. Para combos, es un valor propio (HU-SER-02), no la suma de sus partes. |
 | `duracion_minutos` | int | Duración estimada del ítem, usada para calcular el bloque de agenda (HU-TUR-04). |
@@ -177,7 +179,7 @@ Entidad central del sistema: representa una reserva de horario, agendada por el 
 | `item_catalogo_id` | uuid (FK) | Servicio o combo agendado en este turno. |
 | `fecha_hora_inicio` | datetime | Momento de inicio del turno. |
 | `fecha_hora_fin` | datetime | Momento de fin, calculado según la duración del ítem de catálogo (HU-TUR-04). |
-| `estado` | string | Estado del turno: `reservado`, `completado`, `cancelado` o `ausente` (HU-TUR-06). |
+| `estado` | string | Estado del turno: reservado, completado, cancelado o ausente (HU-TUR-06). |
 
 ---
 
@@ -199,6 +201,6 @@ Registra cada entrada o salida de stock de un insumo: descuentos automáticos po
 ## 3. Decisiones de modelado a tener en cuenta
 
 - Toda tabla con datos propios de la barbería lleva `barberia_id` desde el día 1 (ADR-03), incluso hoy con una única barbería en uso.
-- El patrón `ITEM_CATALOGO` evita duplicar lógica de precio/duración entre Servicio y Combo, y simplifica la tabla Turno a una única referencia.
-- El descuento de stock nunca se hardcodea por nombre de servicio: se resuelve siempre a través de `SERVICIO_INSUMO`, incluso para combos (recorriendo `COMBO_SERVICIO`).
+- El patrón `Item_Catalogo` evita duplicar lógica de precio/duración entre Servicio y Combo, y simplifica la tabla Turno a una única referencia.
+- El descuento de stock nunca se hardcodea por nombre de servicio: se resuelve siempre a través de `Servicio_Insumo`, incluso para combos (recorriendo `Combo_Servicio`).
 - La fidelización usa un campo booleano en Servicio (`cuenta_para_fidelizacion`) en lugar de una lista fija de nombres, para que agregar o quitar servicios del programa no requiera cambios de código.
