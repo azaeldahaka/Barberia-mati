@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Actions\Roles\AssignDefaultRoleToUser;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -45,7 +46,7 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        app(\App\Actions\Roles\AssignDefaultRoleToUser::class)->handle($user);
+        app(AssignDefaultRoleToUser::class)->handle($user);
 
         Auth::login($user);
 

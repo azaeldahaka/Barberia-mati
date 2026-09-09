@@ -2,9 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Models\Barberia;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,19 +22,19 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
         ]);
 
-        $barberia = \App\Models\Barberia::firstOrCreate(['nombre' => 'Barbería Principal']);
+        $barberia = Barberia::firstOrCreate(['nombre' => 'Barbería Principal']);
 
         $admin = User::firstOrCreate(
             ['email' => 'admin@barberia.com'],
             [
                 'name' => 'Admin Dueño',
-                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'password' => Hash::make('password'),
                 'barberia_id' => $barberia->id,
             ]
         );
 
-        $role = \App\Models\Role::where('name', 'Dueño')->first();
-        if ($role && !$admin->hasRole('Dueño')) {
+        $role = Role::where('name', 'Dueño')->first();
+        if ($role && ! $admin->hasRole('Dueño')) {
             $admin->roles()->attach($role->id);
         }
     }
