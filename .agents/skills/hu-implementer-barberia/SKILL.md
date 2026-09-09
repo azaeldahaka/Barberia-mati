@@ -55,11 +55,13 @@ NUNCA saltees la Fase 1, aunque el usuario ordene "implementa la HU-XX directame
 ## Fase 2 — Implementación (Solo tras aprobación explícita)
 1. Ejecuta el plan estrictamente en orden: Backend → Rutas → Frontend React → Tests. Las Actions y Modelos deben existir antes de que los Controllers los consuman.
 2. Cada archivo [NEW]/[MODIFY] se implementa según lo especificado. Si surge un bloqueador que obliga a desviarse del plan, avisa explícitamente en el chat (qué cambia y por qué). No te desvíes en silencio.
-3. Al terminar la lógica, ejecuta los checks locales (simulación de CI):
+3. Si la implementación incluyó nuevas migraciones de base de datos (`database/migrations/`), **debes ejecutar** `php artisan migrate` localmente y, al finalizar, **informar explícitamente al usuario** que las migraciones fueron corridas o recordarle que debe correrlas en su entorno.
+4. Al terminar la lógica, ejecuta los checks locales (simulación de CI):
    - `php artisan test` (si se crearon tests de Actions).
    - `vendor/bin/pint` (para formateo de PHP).
    - `npm run build` (para compilar Vite/React y verificar que no hay errores de sintaxis).
-4. Verifica uno por uno los puntos de la tabla "Verificación de la Definition of Done" del plan. NO des la historia por terminada si falta aplicar validaciones del lado del servidor o encapsular lógica en un Action.
+5. Verifica uno por uno los puntos de la tabla "Verificación de la Definition of Done" del plan. NO des la historia por terminada si falta aplicar validaciones del lado del servidor o encapsular lógica en un Action.
+
 
 ## Fase 3 — Informe de cierre para el Commit y PR
 Al finalizar la Fase 2, genera en el chat el texto listo para que el usuario haga el commit y el Pull Request:
