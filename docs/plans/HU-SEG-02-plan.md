@@ -16,9 +16,18 @@ Diseñar la base de datos con soporte RBAC (Role-Based Access Control) para faci
 
 ### Backend — Migraciones/Modelos
 
-#### [NEW] `database/migrations/2026_09_05_000000_create_roles_tables.php`
+#### [NEW] `database/migrations/xxxx_xx_xx_xxxxxx_create_barberias_table.php`
+- Crear la tabla `barberias` (`id`, `nombre`, `timestamps`) según ADR-03.
+
+#### [NEW] `database/migrations/xxxx_xx_xx_xxxxxx_create_roles_tables.php`
 - Crear la tabla `roles` (`id`, `name`, `timestamps`).
 - Crear la tabla pivote `role_user` (`role_id`, `user_id` con llaves foráneas).
+
+#### [NEW] `database/migrations/xxxx_xx_xx_xxxxxx_add_barberia_id_to_users_table.php`
+- Añadir el campo `barberia_id` a la tabla `users` (llave foránea nullable para MVP).
+
+#### [NEW] `app/Models/Barberia.php`
+- Modelo Eloquent para `Barberia` con `$fillable = ['nombre']`.
 
 #### [NEW] `app/Models/Role.php`
 - Modelo Eloquent para `Role` con `$fillable = ['name']`.
@@ -26,12 +35,13 @@ Diseñar la base de datos con soporte RBAC (Role-Based Access Control) para faci
 
 #### [MODIFY] `app/Models/User.php`
 - Añadir relación `public function roles(): BelongsToMany` (hacia `Role`).
+- Añadir relación `public function barberia(): BelongsTo` (hacia `Barberia`).
 - Añadir método `public function hasRole(string $role): bool` para uso futuro.
 
 ### Backend — Actions
 
 #### [NEW] `app/Actions/Roles/AssignDefaultRoleToUser.php`
-- Action encargado de asegurar que, al llamar a su método `handle(User $user)`, se le asigne el rol de "Dueño" (buscándolo o creándolo en DB) para cumplir el requerimiento de que ningún usuario quede sin rol.
+- Action encargado de asegurar que se asigne el rol de "Dueño" y el tenant `Barberia` por defecto a los nuevos usuarios.
 
 ### Database — Seeders
 
