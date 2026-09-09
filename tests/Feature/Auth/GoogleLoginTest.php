@@ -47,7 +47,7 @@ class GoogleLoginTest extends TestCase
 
         // Assert
         $this->assertAuthenticated();
-        $response->assertRedirect('/dashboard');
+        $response->assertRedirect('/');
 
         $this->assertDatabaseHas('users', [
             'email' => 'test@example.com',

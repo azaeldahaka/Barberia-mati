@@ -23,6 +23,8 @@ class AssignDefaultRoleToUserTest extends TestCase
         // We need to refresh the user's relationship
         $user->load('roles');
 
-        $this->assertTrue($user->hasRole('Dueño'));
+        $this->assertTrue($user->hasRole('Cliente'));
+        $this->assertNotNull($user->barberia_id);
+        $this->assertEquals('Barbería Principal', $user->barberia->nombre);
     }
 }

@@ -101,10 +101,9 @@ export default function Login({ status, canResetPassword }) {
 
                 <div className="mt-4 flex items-center justify-center">
                     <a
-                        href="#"
-                        onClick={(e) => { e.preventDefault(); alert('Login con Google temporalmente deshabilitado.'); }}
-                        className="w-full inline-flex justify-center items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150 cursor-not-allowed opacity-50"
-                        title="Login con Google temporalmente deshabilitado"
+                        href={route('google.redirect')}
+                        className="w-full inline-flex justify-center items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                        title="Iniciar sesión con Google"
                     >
                         <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                             <path
