@@ -15,7 +15,7 @@ class UpdateServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255', Rule::unique('services')->ignore($this->service)],
+            'name' => ['required', 'string', 'max:255', Rule::unique('item_catalogos', 'nombre')->ignore($this->service->item_catalogo_id)],
             'duration_minutes' => ['required', 'integer', 'min:1'],
             'price' => ['required', 'numeric', 'min:0'],
         ];

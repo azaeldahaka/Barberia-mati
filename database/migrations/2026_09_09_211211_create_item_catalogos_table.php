@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('services', function (Blueprint $table) {
-            $table->id();
-            $table->string('name')->unique();
-            $table->integer('duration_minutes');
-            $table->decimal('price', 8, 2);
+        Schema::create('item_catalogos', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->foreignIdFor(\App\Models\Barberia::class)->constrained();
+            $table->enum('tipo', ['servicio', 'combo']);
+            $table->string('nombre');
+            $table->decimal('precio', 8, 2);
+            $table->integer('duracion_minutos');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -26,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('services');
+        Schema::dropIfExists('item_catalogos');
     }
 };

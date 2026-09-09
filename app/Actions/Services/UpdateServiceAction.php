@@ -8,11 +8,17 @@ class UpdateServiceAction
 {
     public function execute(Service $service, array $data): Service
     {
-        $service->update([
-            'name' => $data['name'],
-            'duration_minutes' => $data['duration_minutes'],
-            'price' => $data['price'],
+        $service->itemCatalogo->update([
+            'nombre' => $data['name'],
+            'precio' => $data['price'],
+            'duracion_minutos' => $data['duration_minutes'],
         ]);
+
+        if (array_key_exists('cuenta_para_fidelizacion', $data)) {
+            $service->update([
+                'cuenta_para_fidelizacion' => $data['cuenta_para_fidelizacion'],
+            ]);
+        }
 
         return $service;
     }

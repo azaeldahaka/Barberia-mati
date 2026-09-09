@@ -16,7 +16,15 @@ class ServiceController extends Controller
 {
     public function index(): Response
     {
-        $services = Service::orderBy('name')->get();
+        $services = Service::with('itemCatalogo')->get()->sortBy('itemCatalogo.nombre')->values()->map(function ($service) {
+            return [
+                'id' => $service->id,
+                'name' => $service->itemCatalogo->nombre,
+                'price' => $service->itemCatalogo->precio,
+                'duration_minutes' => $service->itemCatalogo->duracion_minutos,
+                'cuenta_para_fidelizacion' => $service->cuenta_para_fidelizacion,
+            ];
+        });
 
         return Inertia::render('Services/Index', [
             'services' => $services,
