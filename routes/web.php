@@ -31,8 +31,14 @@ Route::middleware('auth')->group(function () {
     Route::resource('turnos', TurnoController::class)->only(['index', 'create', 'store']);
 });
 
+use App\Http\Controllers\PublicTurnoController;
+
 // Autoregistro de Cliente (HU-CLI-01)
 Route::get('/registro-cliente', [ClientRegistrationController::class, 'create'])->name('client.register');
 Route::post('/registro-cliente', [ClientRegistrationController::class, 'store']);
+
+// Reserva Pública (HU-TUR-02)
+Route::get('/reservar', [PublicTurnoController::class, 'create'])->name('public.turno.create');
+Route::post('/reservar', [PublicTurnoController::class, 'store'])->name('public.turno.store');
 
 require __DIR__.'/auth.php';

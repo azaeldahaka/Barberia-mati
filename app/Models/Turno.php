@@ -45,4 +45,12 @@ class Turno extends Model
     {
         return $this->belongsTo(ItemCatalogo::class, 'item_catalogo_id');
     }
+
+    /**
+     * Prepare a date for array / JSON serialization.
+     */
+    protected function serializeDate(\DateTimeInterface $date): string
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 }

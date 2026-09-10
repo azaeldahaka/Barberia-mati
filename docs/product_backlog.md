@@ -34,9 +34,14 @@ Campos por HU: `id`, `módulo`, `título`, `prioridad`, `sprint sugerido`, `adr 
 - **Como** cliente, **quiero** reservar mi propio turno desde una página pública, **para** sacar un turno sin tener que llamar o ir personalmente.
 - **Criterios de aceptación:**
   - La página pública muestra únicamente los horarios disponibles, ya bloqueados según turnos existentes.
+  - Un horario cuenta como "disponible" solo si tiene espacio suficiente para la duración completa del servicio/combo elegido, sin invadir el siguiente turno ya agendado (más un margen de 5 minutos entre turnos — ver constante `TURNO_BUFFER_MINUTOS` o equivalente). Este cálculo debe rehacerse cada vez que cambia el servicio elegido, ya que la misma grilla de horarios puede tener distinta disponibilidad según la duración de cada servicio.
+  - Al confirmar una reserva, el horario recién tomado deja de listarse como disponible inmediatamente (sin necesidad de recargar la página manualmente) para evitar que otro cliente lo vea libre.
   - El cliente elige un servicio y ve la duración antes de confirmar.
   - Si el cliente no tiene cuenta, se lo dirige al flujo de autoregistro (HU-CLI-01) antes de confirmar.
+  - Al confirmar, el cliente es redirigido a una pantalla de confirmación/inicio (no permanece en el formulario de reserva).
   - Al confirmar, el turno queda visible en la agenda del staff en tiempo real.
+  - La hora que el cliente selecciona y confirma en el frontend es exactamente la misma hora que queda guardada en fecha_hora_inicio y la que ve el staff en el dashboard — sin corrimientos por zona horaria en ningún punto de la cadena (selección → envío al backend → guardado en base → lectura desde el backend → visualización en el dashboard).
+- **Nota:** los primeros dos criterios sobre disponibilidad y redirección surgieron de un bug detectado en testing manual tras la primera implementación: la grilla de horarios disponibles no recalculaba huecos según la duración del servicio (podía ofrecer un turno a las 17:30 aunque un servicio de 40 min iniciado a las 17:00 lo solapara), y la pantalla no redirigía ni refrescaba tras confirmar. El buffer de 5 minutos entre turnos fue una decisión de negocio tomada en este momento, no parte del alcance original — está pensado para dejarlo como constante fácilmente ajustable, ya que Matías podría querer cambiarlo tras probarlo en la práctica. El criterio de zona horaria surgió de un bug grave detectado en el mismo testing: un turno reservado por el cliente a las 21hs apareció en el dashboard del staff a las 18hs (desfasaje de 3 horas, consistente con una conversión UTC no revertida en algún punto de la cadena).
 
 ### HU-TUR-03 — Vista de agenda diaria/semanal
 - **Prioridad:** Must · **Sprint sugerido:** 1 · **ADR relacionado:** —
