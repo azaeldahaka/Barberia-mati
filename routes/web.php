@@ -20,6 +20,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\TurnoController;
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -27,6 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('services', ServiceController::class)->except(['create', 'show', 'edit']);
+    Route::resource('turnos', TurnoController::class)->only(['index', 'create', 'store']);
 });
 
 // Autoregistro de Cliente (HU-CLI-01)
