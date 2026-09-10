@@ -28,6 +28,11 @@ class ClientRegistrationController extends Controller
         // Save the client ID in the session to identify them for future reservations (HU-TUR-02)
         session(['client_id' => $client->id]);
 
+        if (session()->has('pending_turno')) {
+            return redirect()->route('public.turno.create')
+                ->with('status', 'Registro exitoso. Ya puedes confirmar tu turno.');
+        }
+
         return redirect()->to('/')->with('status', 'Registro exitoso. Ya puedes reservar un turno.');
     }
 }
