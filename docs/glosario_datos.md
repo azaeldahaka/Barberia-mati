@@ -4,6 +4,8 @@
 **Complementa a:** Diagrama Entidad-Relación (DER) — `DER_Barberia_v1.dot` / `.png` / `.svg`
 **Fuente de verdad:** este archivo. Si se modifica, replicar los cambios en `Glosario_Datos_Barberia_v1.docx`.
 
+**Nota de corrección (10/09/2026):** las claves primarias y foráneas de este glosario se documentaron originalmente como `uuid`. Durante la implementación de HU-TUR-01 se detectó que Cliente y Usuario ya existían en el código con `id` tipo `bigint` autoincremental (el default de Laravel), y no tenía sentido migrar retroactivamente HU-SEG-01/HU-CLI-01/HU-SER-01 ya cerradas. Se decidió adoptar `bigint` como estándar del proyecto y corregir este documento para que sea la fuente de verdad real. La arquitectura multi-tenant-ready (ADR-03) no depende del tipo de dato de la PK, solo de que `barberia_id` exista como FK — este cambio no la afecta.
+
 ## 1. Propósito de este documento
 
 Este glosario describe cada entidad (tabla) del modelo de datos, su propósito de negocio, sus campos y sus relaciones con otras entidades. Complementa al DER: mientras el diagrama muestra la estructura visual, este documento explica el porqué de cada tabla y cada decisión de modelado.
@@ -20,7 +22,7 @@ Entidad raíz del modelo. Representa a una barbería como cliente del sistema. E
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| `id` | uuid (PK) | Identificador único de la barbería. |
+| `id` | bigint (PK) | Identificador único de la barbería. |
 | `nombre` | string | Nombre comercial de la barbería. |
 | `horario_apertura` | string | Hora de apertura del local (ej. "12:00"). Fija para la v1 (ADR-02). |
 | `horario_cierre` | string | Hora de cierre del local (ej. "22:00"). Fija para la v1 (ADR-02). |
@@ -35,8 +37,8 @@ Representa a una persona del staff que opera el sistema (hoy, únicamente Matía
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| `id` | uuid (PK) | Identificador único del usuario. |
-| `barberia_id` | uuid (FK) | Barbería a la que pertenece este usuario. |
+| `id` | bigint (PK) | Identificador único del usuario. |
+| `barberia_id` | bigint (FK) | Barbería a la que pertenece este usuario. |
 | `nombre` | string | Nombre del usuario del staff. |
 | `email` | string | Email usado para login (propio o vinculado a Google). |
 | `password_hash` | string | Contraseña encriptada, si el usuario usa login propio (nulo si usa solo Google). |
@@ -52,8 +54,8 @@ Representa a un cliente de la barbería. Se autoregistra desde la página públi
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| `id` | uuid (PK) | Identificador único del cliente. |
-| `barberia_id` | uuid (FK) | Barbería en la que este cliente está registrado. |
+| `id` | bigint (PK) | Identificador único del cliente. |
+| `barberia_id` | bigint (FK) | Barbería en la que este cliente está registrado. |
 | `nombre` | string | Nombre del cliente. |
 | `apellido` | string | Apellido del cliente. |
 | `telefono` | string | Teléfono/WhatsApp de contacto. Usado también para el recordatorio automático (HU-TUR-07). |
@@ -68,8 +70,8 @@ Lleva el conteo del programa de fidelización: cada 5 cortes acumulados, el 6to 
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| `id` | uuid (PK) | Identificador único del registro de fidelización. |
-| `cliente_id` | uuid (FK) | Cliente al que pertenece este contador. |
+| `id` | bigint (PK) | Identificador único del registro de fidelización. |
+| `cliente_id` | bigint (FK) | Cliente al que pertenece este contador. |
 | `cortes_acumulados` | int | Cantidad de cortes pagados acumulados en el ciclo actual (de 0 a 5). Se reinicia a 0 cuando el cliente usa el corte gratis. |
 | `ultima_actualizacion` | date | Fecha del último corte que modificó el contador. |
 
@@ -83,8 +85,8 @@ Entidad unificadora que representa cualquier "cosa agendable y con precio": un S
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| `id` | uuid (PK) | Identificador único del ítem de catálogo. |
-| `barberia_id` | uuid (FK) | Barbería a la que pertenece este ítem. |
+| `id` | bigint (PK) | Identificador único del ítem de catálogo. |
+| `barberia_id` | bigint (FK) | Barbería a la que pertenece este ítem. |
 | `tipo` | string | Indica si el ítem es 'servicio' o 'combo'. |
 | `nombre` | string | Nombre visible del ítem (ej. "Corte", "Combo Corte + Barba"). |
 | `precio` | decimal | Precio de venta del ítem. Para combos, es un valor propio (HU-SER-02), no la suma de sus partes. |
@@ -100,8 +102,8 @@ Representa un servicio individual del catálogo (Corte, Barba, Cejas). Se gestio
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| `id` | uuid (PK) | Identificador único del servicio. |
-| `item_catalogo_id` | uuid (FK) | Referencia al ítem de catálogo que contiene nombre, precio y duración de este servicio. |
+| `id` | bigint (PK) | Identificador único del servicio. |
+| `item_catalogo_id` | bigint (FK) | Referencia al ítem de catálogo que contiene nombre, precio y duración de este servicio. |
 | `cuenta_para_fidelizacion` | boolean | Indica si este servicio suma al contador de fidelización. Solo es verdadero para el servicio "Corte" (HU-CLI-03), evitando hardcodear el nombre del servicio en el código. |
 
 ---
@@ -114,8 +116,8 @@ Representa un paquete de servicios vendido a un precio propio (ej. Corte + Barba
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| `id` | uuid (PK) | Identificador único del combo. |
-| `item_catalogo_id` | uuid (FK) | Referencia al ítem de catálogo que contiene nombre, precio y duración de este combo. |
+| `id` | bigint (PK) | Identificador único del combo. |
+| `item_catalogo_id` | bigint (FK) | Referencia al ítem de catálogo que contiene nombre, precio y duración de este combo. |
 
 ---
 
@@ -127,9 +129,9 @@ Tabla intermedia (muchos a muchos) que define qué servicios componen cada combo
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| `id` | uuid (PK) | Identificador único de la relación. |
-| `combo_id` | uuid (FK) | Combo al que pertenece esta composición. |
-| `servicio_id` | uuid (FK) | Servicio incluido dentro del combo. |
+| `id` | bigint (PK) | Identificador único de la relación. |
+| `combo_id` | bigint (FK) | Combo al que pertenece esta composición. |
+| `servicio_id` | bigint (FK) | Servicio incluido dentro del combo. |
 
 ---
 
@@ -141,8 +143,8 @@ Representa un insumo consumible de la barbería (filos de navaja, cuellitos prot
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| `id` | uuid (PK) | Identificador único del insumo. |
-| `barberia_id` | uuid (FK) | Barbería a la que pertenece este insumo. |
+| `id` | bigint (PK) | Identificador único del insumo. |
+| `barberia_id` | bigint (FK) | Barbería a la que pertenece este insumo. |
 | `nombre` | string | Nombre del insumo (ej. "Filo de navaja", "Cuellito descartable"). |
 | `stock_actual` | int | Cantidad disponible actualmente. Se actualiza mediante Movimiento_Stock. |
 | `stock_minimo` | int | Nivel mínimo definido por el dueño; al alcanzarlo o bajarlo, el sistema muestra un aviso. |
@@ -157,9 +159,9 @@ Tabla intermedia que define qué insumos consume cada servicio y en qué cantida
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| `id` | uuid (PK) | Identificador único de la relación. |
-| `servicio_id` | uuid (FK) | Servicio que consume el insumo. |
-| `insumo_id` | uuid (FK) | Insumo consumido. |
+| `id` | bigint (PK) | Identificador único de la relación. |
+| `servicio_id` | bigint (FK) | Servicio que consume el insumo. |
+| `insumo_id` | bigint (FK) | Insumo consumido. |
 | `cantidad_consumida` | int | Cantidad de ese insumo que se descuenta cada vez que se presta el servicio (normalmente 1). |
 
 ---
@@ -172,11 +174,11 @@ Entidad central del sistema: representa una reserva de horario, agendada por el 
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| `id` | uuid (PK) | Identificador único del turno. |
-| `barberia_id` | uuid (FK) | Barbería en la que se agenda el turno. |
-| `cliente_id` | uuid (FK) | Cliente que reservó el turno. |
-| `usuario_id` | uuid (FK) | Usuario (staff) que atiende el turno. |
-| `item_catalogo_id` | uuid (FK) | Servicio o combo agendado en este turno. |
+| `id` | bigint (PK) | Identificador único del turno. |
+| `barberia_id` | bigint (FK) | Barbería en la que se agenda el turno. |
+| `cliente_id` | bigint (FK) | Cliente que reservó el turno. |
+| `usuario_id` | bigint (FK) | Usuario (staff) que atiende el turno. |
+| `item_catalogo_id` | bigint (FK) | Servicio o combo agendado en este turno. |
 | `fecha_hora_inicio` | datetime | Momento de inicio del turno. |
 | `fecha_hora_fin` | datetime | Momento de fin, calculado según la duración del ítem de catálogo (HU-TUR-04). |
 | `estado` | string | Estado del turno: reservado, completado, cancelado o ausente (HU-TUR-06). |
@@ -191,9 +193,9 @@ Registra cada entrada o salida de stock de un insumo: descuentos automáticos po
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| `id` | uuid (PK) | Identificador único del movimiento. |
-| `insumo_id` | uuid (FK) | Insumo afectado por el movimiento. |
-| `turno_id` | uuid (FK) | Turno que generó el descuento automático (nulo si el movimiento es una reposición manual). |
+| `id` | bigint (PK) | Identificador único del movimiento. |
+| `insumo_id` | bigint (FK) | Insumo afectado por el movimiento. |
+| `turno_id` | bigint (FK) | Turno que generó el descuento automático (nulo si el movimiento es una reposición manual). |
 | `cantidad` | int | Cantidad afectada por el movimiento (positiva para reposición, negativa para descuento). |
 | `tipo_movimiento` | string | Tipo de movimiento: `descuento_por_servicio` o `reposicion_manual`. |
 | `fecha` | datetime | Momento en que se registró el movimiento. |

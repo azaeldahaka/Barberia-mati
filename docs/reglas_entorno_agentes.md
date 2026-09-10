@@ -56,6 +56,22 @@ construir sobre una base incorrecta.
 - `vendor/bin/pint`
 - `npm run build` (si el cambio toca frontend)
 
+## Definition of Done — Navegabilidad frontend (obligatorio)
+
+**Regla de oro, agregada tras la lección aprendida de HU-TUR-01:** una HU que
+crea un nuevo módulo, vista principal, panel o índice interactivo **no está
+completa** solo porque el código, las rutas y los tests funcionan. También
+tiene que ser **alcanzable por el usuario real haciendo clic desde la
+interfaz**, sin que nadie tenga que escribir la URL a mano.
+
+Antes de dar una HU por cerrada, si creaste una vista nueva:
+- Agregá el enlace correspondiente en los layouts/menús globales (ej.
+  `AuthenticatedLayout.jsx`, sidebar, menú móvil) — tanto en la versión de
+  escritorio como en la de mobile si el proyecto las tiene separadas.
+- Volvé a correr `npm run build` después de tocar el layout.
+- Confirmá en tu entrega que hiciste este paso explícitamente (no asumas
+  que "se sobreentiende").
+
 ## Al entregar
 Indicar siempre:
 - Qué archivos se crearon/modificaron.
