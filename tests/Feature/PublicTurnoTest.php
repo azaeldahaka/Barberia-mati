@@ -88,7 +88,7 @@ class PublicTurnoTest extends TestCase
                 'fecha_hora_inicio' => $fechaHoraInicio,
             ]);
 
-        $response->assertRedirect('/reservar');
+        $response->assertRedirect('/');
         $response->assertSessionHas('status', 'Tu reserva ha sido confirmada exitosamente. ¡Te esperamos!');
 
         $this->assertDatabaseHas('turnos', [

@@ -97,6 +97,6 @@ class PublicTurnoController extends Controller
         // Limpiar turno pendiente si lo hubiera
         session()->forget('pending_turno');
 
-        return redirect()->route('public.turno.create')->with('status', 'Tu reserva ha sido confirmada exitosamente. ¡Te esperamos!');
+        return redirect()->to('/')->with('status', 'Tu reserva ha sido confirmada exitosamente. ¡Te esperamos!');
     }
 }

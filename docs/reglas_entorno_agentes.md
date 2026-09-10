@@ -72,6 +72,37 @@ Antes de dar una HU por cerrada, si creaste una vista nueva:
 - Confirmá en tu entrega que hiciste este paso explícitamente (no asumas
   que "se sobreentiende").
 
+## Definition of Done — Zona horaria en fechas/horas (obligatorio)
+
+**Regla de oro, agregada tras la lección aprendida de HU-TUR-02 (bug
+crítico):** un turno reservado a las 21:00 apareció en el dashboard del
+staff a las 18:00. Causa raíz combinada: `config/app.php` con timezone
+`UTC` por defecto, el modelo serializando fechas con indicador `Z` (UTC),
+y el navegador (en Argentina, UTC-3) restando 3 horas al convertir a hora
+local. Ninguno de esos tres puntos por separado rompía nada visible en
+desarrollo — la combinación sí.
+
+Toda HU que cree, muestre o calcule sobre fechas/horas (turnos, reportes
+por período, recordatorios de WhatsApp con horario, etc.) debe verificar
+explícitamente, antes de cerrarse:
+- `config/app.php` tiene la timezone del negocio configurada
+  (`America/Argentina/Buenos_Aires` o la que corresponda), no el default
+  `UTC`.
+- La hora que el usuario ingresa en el frontend, la que viaja al backend,
+  la que se guarda en base, y la que se vuelve a mostrar en cualquier
+  pantalla (incluida una distinta a la que la originó) son la misma hora
+  local — sin conversiones implícitas del navegador ni de Carbon/Eloquent
+  en el medio.
+- Si el modelo serializa fechas a JSON (Eloquent lo hace por defecto), el
+  formato de salida no debe traer un indicador de UTC (`Z` o `+00:00`)
+  salvo que el sistema esté genuinamente diseñado para trabajar en UTC de
+  punta a punta — no es el caso de este proyecto (ver `serializeDate` en
+  el modelo `Turno` como referencia de la solución ya aplicada).
+- Incluir al menos un test de regresión explícito que cree un registro
+  con una hora específica y verifique que esa misma hora se lea igual
+  desde donde sea que se consuma — este tipo de bug es silencioso y puede
+  reaparecer sin aviso en una HU no relacionada.
+
 ## Al entregar
 Indicar siempre:
 - Qué archivos se crearon/modificaron.

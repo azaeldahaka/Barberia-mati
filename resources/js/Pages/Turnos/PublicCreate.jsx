@@ -36,10 +36,10 @@ export default function PublicCreate({ itemCatalogos, turnosDelDia, selectedDate
         const [openHour, openMin] = horario_apertura.split(':').map(Number);
         const [closeHour, closeMin] = horario_cierre.split(':').map(Number);
 
-        let current = new Date(`${selectedDateUI}T00:00:00`);
+        let current = new Date(selectedDateUI.replace(/-/g, '/') + ' 00:00:00');
         current.setHours(openHour, openMin, 0);
 
-        const endLimit = new Date(`${selectedDateUI}T00:00:00`);
+        const endLimit = new Date(selectedDateUI.replace(/-/g, '/') + ' 00:00:00');
         endLimit.setHours(closeHour, closeMin, 0);
 
         const slots = [];
@@ -48,14 +48,21 @@ export default function PublicCreate({ itemCatalogos, turnosDelDia, selectedDate
             const slotEnd = new Date(current.getTime() + duration * 60000);
             if (slotEnd > endLimit) break;
 
-            // Check overlap
+            // Check overlap con la misma lógica que CheckTurnoOverlapAction (incluyendo buffer 5 min)
             let isOverlapping = false;
-            for (const t of turnosDelDia) {
-                const tStart = new Date(t.fecha_hora_inicio);
-                const tEnd = new Date(t.fecha_hora_fin);
+            const bufferMs = 5 * 60000;
 
-                // Overlap condition:
-                if (current < tEnd && slotEnd > tStart) {
+            for (const t of turnosDelDia) {
+                // Parseamos ignorando la zona horaria (los turnos vienen como Y-m-d H:i:s, así que JS los asume locales)
+                // Usamos replace para asegurar que Safari/Firefox lo parseen bien
+                const tStart = new Date(t.fecha_hora_inicio.replace(/-/g, '/'));
+                const tEnd = new Date(t.fecha_hora_fin.replace(/-/g, '/'));
+
+                const inicioConBuffer = new Date(current.getTime() - bufferMs);
+                const finConBuffer = new Date(slotEnd.getTime() + bufferMs);
+
+                // Overlap condition: A_fin > B_inicio - buffer Y A_inicio < B_fin + buffer
+                if (tEnd > inicioConBuffer && tStart < finConBuffer) {
                     isOverlapping = true;
                     break;
                 }
@@ -73,8 +80,8 @@ export default function PublicCreate({ itemCatalogos, turnosDelDia, selectedDate
                 slots.push(`${hours}:${mins}`);
             }
 
-            // Avanzar 30 mins (o 15, depende de la granularidad deseada. 30 es un buen default)
-            current.setMinutes(current.getMinutes() + 30);
+            // Avanzamos 15 minutos (menor granularidad para encontrar huecos tras el buffer)
+            current.setMinutes(current.getMinutes() + 15);
         }
 
         return slots;
