@@ -149,7 +149,7 @@ class TurnoBugRegressionTest extends TestCase
         $this->assertEquals('21:00:00', Carbon::parse($turno->fecha_hora_inicio)->format('H:i:s'));
 
         // 4. Verify that when reading via Staff Dashboard (JSON serialization), it remains 21:00
-        $response = $this->actingAs($this->user)->get('/turnos');
+        $response = $this->actingAs($this->user)->get('/turnos?start='.$fechaTurno->format('Y-m-d').'&end='.$fechaTurno->format('Y-m-d').'&view=day');
         $response->assertInertia(fn ($page) => $page->component('Turnos/Index')
             ->where('turnos.0.fecha_hora_inicio', $fechaTurno->format('Y-m-d H:i:s'))
         );

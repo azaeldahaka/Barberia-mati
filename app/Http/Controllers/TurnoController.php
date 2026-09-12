@@ -12,21 +12,46 @@ use App\Models\ItemCatalogo;
 use App\Models\Turno;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class TurnoController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        // En HU-TUR-03 implementaremos la vista real, por ahora una vista base
-        $turnos = Turno::with(['cliente', 'itemCatalogo', 'usuario'])
-            ->orderBy('fecha_hora_inicio', 'asc')
-            ->get();
+        $user = Auth::user();
+        $query = Turno::with(['cliente', 'itemCatalogo', 'usuario'])
+            ->where('barberia_id', $user->barberia_id);
+
+        $view = $request->input('view', 'day');
+
+        $start = $request->input('start');
+        $end = $request->input('end');
+
+        if (! $start || ! $end) {
+            if ($view === 'week') {
+                $start = Carbon::today()->startOfWeek()->format('Y-m-d');
+                $end = Carbon::today()->endOfWeek()->format('Y-m-d');
+            } else {
+                $start = Carbon::today()->format('Y-m-d');
+                $end = Carbon::today()->format('Y-m-d');
+            }
+        }
+
+        $query->where('fecha_hora_inicio', '>=', Carbon::parse($start)->startOfDay());
+        $query->where('fecha_hora_inicio', '<=', Carbon::parse($end)->endOfDay());
+
+        $turnos = $query->orderBy('fecha_hora_inicio', 'asc')->get();
 
         return Inertia::render('Turnos/Index', [
             'turnos' => $turnos,
+            'filters' => [
+                'start' => $start,
+                'end' => $end,
+                'view' => $view,
+            ],
         ]);
     }
 

@@ -53,7 +53,7 @@ class CreateTurnoTest extends TestCase
 
     public function test_staff_can_create_turno_with_existing_client()
     {
-        $fechaInicio = Carbon::today()->setTime(14, 0);
+        $fechaInicio = Carbon::tomorrow()->setTime(14, 0);
 
         $response = $this->actingAs($this->user)->post(route('turnos.store'), [
             'client_id' => $this->client->id,
@@ -79,7 +79,7 @@ class CreateTurnoTest extends TestCase
 
     public function test_staff_can_create_turno_with_new_client()
     {
-        $fechaInicio = Carbon::today()->setTime(15, 0);
+        $fechaInicio = Carbon::tomorrow()->setTime(15, 0);
 
         $response = $this->actingAs($this->user)->post(route('turnos.store'), [
             'first_name' => 'Jane',
@@ -106,7 +106,7 @@ class CreateTurnoTest extends TestCase
 
     public function test_cannot_create_turno_outside_business_hours()
     {
-        $fechaInicio = Carbon::today()->setTime(11, 0); // Abre a las 12
+        $fechaInicio = Carbon::tomorrow()->setTime(11, 0); // Abre a las 12
 
         $response = $this->actingAs($this->user)->post(route('turnos.store'), [
             'client_id' => $this->client->id,
@@ -120,7 +120,7 @@ class CreateTurnoTest extends TestCase
 
     public function test_cannot_create_overlapping_turno()
     {
-        $fechaInicio = Carbon::today()->setTime(14, 0);
+        $fechaInicio = Carbon::tomorrow()->setTime(14, 0);
 
         // Crear turno de 14:00 a 14:30
         Turno::create([
@@ -134,7 +134,7 @@ class CreateTurnoTest extends TestCase
         ]);
 
         // Intentar crear otro de 14:15 a 14:45
-        $fechaSuperpuesta = Carbon::today()->setTime(14, 15);
+        $fechaSuperpuesta = Carbon::tomorrow()->setTime(14, 15);
 
         $response = $this->actingAs($this->user)->post(route('turnos.store'), [
             'client_id' => $this->client->id,
