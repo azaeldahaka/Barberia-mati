@@ -36,7 +36,7 @@ class TurnoAgendaTest extends TestCase
             'barberia_id' => $barberia->id,
             'first_name' => 'John',
             'last_name' => 'Doe',
-            'phone' => '123456'
+            'phone' => '123456',
         ]);
 
         $item = ItemCatalogo::create([
