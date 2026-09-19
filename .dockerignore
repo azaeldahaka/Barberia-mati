@@ -1,0 +1,11 @@
+.git
+.env
+.env.*
+node_modules
+vendor
+storage/logs/*.log
+public/hot
+tests
+*.test.*
+README.md
+.gitignore
