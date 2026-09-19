@@ -11,7 +11,7 @@ RUN npm run build
 # ============================================================
 # Fase 2: PHP + Apache (servidor de produccion)
 # ============================================================
-FROM php:8.3-apache
+FROM php:8.4-apache
 
 # Habilitar mod_rewrite (necesario para que las rutas de Laravel funcionen)
 RUN a2enmod rewrite
