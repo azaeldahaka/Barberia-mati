@@ -6,6 +6,10 @@ set -e
 # fresh boraria todos los datos. Solo 'migrate' agrega los cambios nuevos.
 php artisan migrate --force
 
+# Ejecutar seeders para asegurar que los datos base (roles, admin) existan
+# Todos nuestros seeders usan firstOrCreate, por lo que es seguro ejecutarlo en cada inicio.
+php artisan db:seed --force
+
 # Cachear configuracion, rutas y vistas (mejora el rendimiento)
 php artisan config:cache
 php artisan route:cache
