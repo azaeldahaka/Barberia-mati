@@ -147,6 +147,15 @@ export default function Login({ status, canResetPassword }) {
                         Google
                     </a>
                 </div>
+
+                <div className="mt-6 flex justify-center">
+                    <Link
+                        href="/"
+                        className="text-sm text-gray-600 underline hover:text-gray-900 transition"
+                    >
+                        &larr; Volver a la página principal
+                    </Link>
+                </div>
             </form>
         </GuestLayout>
     );
