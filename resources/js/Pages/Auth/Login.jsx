@@ -4,11 +4,12 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
+import BackButton from '@/Components/BackButton';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 
 export default function Login({ status, canResetPassword }) {
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, processing, errors, reset, isDirty } = useForm({
         email: '',
         password: '',
         remember: false,
@@ -27,6 +28,10 @@ export default function Login({ status, canResetPassword }) {
     return (
         <GuestLayout>
             <Head title="Log in" />
+            
+            <div className="mb-4">
+                <BackButton fallback="/" isDirty={isDirty} className="mb-4" />
+            </div>
 
             {status && (
                 <div className="mb-4 text-sm font-medium text-green-600">
@@ -148,14 +153,6 @@ export default function Login({ status, canResetPassword }) {
                     </a>
                 </div>
 
-                <div className="mt-6 flex justify-center">
-                    <Link
-                        href="/"
-                        className="text-sm text-gray-600 underline hover:text-gray-900 transition"
-                    >
-                        &larr; Volver a la página principal
-                    </Link>
-                </div>
             </form>
         </GuestLayout>
     );

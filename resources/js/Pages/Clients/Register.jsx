@@ -3,10 +3,11 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
+import BackButton from '@/Components/BackButton';
 import { Head, useForm, Link } from '@inertiajs/react';
 
 export default function Register() {
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors, isDirty } = useForm({
         first_name: '',
         last_name: '',
         phone: '',
@@ -79,12 +80,7 @@ export default function Register() {
                 </div>
 
                 <div className="mt-6 flex items-center justify-end">
-                    <Link
-                        href="/"
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    >
-                        Volver al inicio
-                    </Link>
+                    <BackButton fallback="/" isDirty={isDirty} />
 
                     <PrimaryButton className="ms-4" disabled={processing}>
                         Registrarse

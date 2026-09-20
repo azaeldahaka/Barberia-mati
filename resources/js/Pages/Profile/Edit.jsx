@@ -3,14 +3,18 @@ import { Head } from '@inertiajs/react';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
+import BackButton from '@/Components/BackButton';
 
 export default function Edit({ mustVerifyEmail, status }) {
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Profile
-                </h2>
+                <div className="flex items-center">
+                    <BackButton fallback={route('dashboard')} className="mr-4" />
+                    <h2 className="text-xl font-semibold leading-tight text-gray-800">
+                        Profile
+                    </h2>
+                </div>
             }
         >
             <Head title="Profile" />

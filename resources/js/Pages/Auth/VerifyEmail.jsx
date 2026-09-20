@@ -1,9 +1,10 @@
+import BackButton from '@/Components/BackButton';
 import PrimaryButton from '@/Components/PrimaryButton';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function VerifyEmail({ status }) {
-    const { post, processing } = useForm({});
+    const { post, processing, isDirty } = useForm({});
 
     const submit = (e) => {
         e.preventDefault();
@@ -14,6 +15,10 @@ export default function VerifyEmail({ status }) {
     return (
         <GuestLayout>
             <Head title="Email Verification" />
+
+            <div className="mb-4">
+                <BackButton fallback="/" isDirty={isDirty} className="mb-4" />
+            </div>
 
             <div className="mb-4 text-sm text-gray-600">
                 Thanks for signing up! Before getting started, could you verify
