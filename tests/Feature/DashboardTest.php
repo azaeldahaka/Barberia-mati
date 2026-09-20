@@ -24,8 +24,11 @@ class DashboardTest extends TestCase
         $response->assertStatus(200);
         $response->assertInertia(fn (Assert $page) => $page
             ->component('Dashboard')
-            ->where('cantidadTurnosHoy', 0)
-            ->where('ingresosEstimadosHoy', 0)
+            ->where('turnosTotales', 0)
+            ->where('turnosCompletados', 0)
+            ->where('turnosPendientes', 0)
+            ->where('ingresosHoy', 0)
+            ->where('pendienteCobro', 0)
             ->where('servicioMasSolicitado', null)
         );
     }
@@ -47,7 +50,7 @@ class DashboardTest extends TestCase
 
         $hoy = today();
 
-        // Turno 1: Hoy, completado (Corte) -> Suma cantidad (1), ingreso (5000)
+        // Turno 1: Hoy, completado (Corte) -> Suma ingresosHoy (5000), completados (1), totales (1)
         Turno::create([
             'barberia_id' => $barberia->id,
             'cliente_id' => $client->id,
@@ -58,7 +61,7 @@ class DashboardTest extends TestCase
             'estado' => 'completado',
         ]);
 
-        // Turno 2: Hoy, reservado (Corte) -> Suma cantidad (2), ingreso (+5000 = 10000)
+        // Turno 2: Hoy, reservado (Corte) -> Suma pendienteCobro (5000), pendientes (1), totales (2)
         Turno::create([
             'barberia_id' => $barberia->id,
             'cliente_id' => $client->id,
@@ -69,7 +72,7 @@ class DashboardTest extends TestCase
             'estado' => 'reservado',
         ]);
 
-        // Turno 3: Hoy, ausente (Barba) -> Suma cantidad (3), NO suma ingreso
+        // Turno 3: Hoy, ausente (Barba) -> Suma totales (3), NO suma ingresos ni pendientes
         Turno::create([
             'barberia_id' => $barberia->id,
             'cliente_id' => $client->id,
@@ -80,7 +83,7 @@ class DashboardTest extends TestCase
             'estado' => 'ausente',
         ]);
 
-        // Turno 4: Hoy, cancelado (Corte) -> NO suma cantidad, NO suma ingreso
+        // Turno 4: Hoy, cancelado (Corte) -> NO suma nada
         Turno::create([
             'barberia_id' => $barberia->id,
             'cliente_id' => $client->id,
@@ -107,9 +110,12 @@ class DashboardTest extends TestCase
         $response->assertStatus(200);
         $response->assertInertia(fn (Assert $page) => $page
             ->component('Dashboard')
-            ->where('cantidadTurnosHoy', 3)
-            ->where('ingresosEstimadosHoy', 10000)
-            ->where('servicioMasSolicitado', 'Corte')
+            ->where('turnosTotales', 3) // 1 completado + 1 reservado + 1 ausente
+            ->where('turnosCompletados', 1)
+            ->where('turnosPendientes', 1)
+            ->where('ingresosHoy', 5000)
+            ->where('pendienteCobro', 5000)
+            ->where('servicioMasSolicitado', 'Corte') // 2 cortes vs 1 barba vs 1 corte cancelado (no cuenta)
         );
     }
 }

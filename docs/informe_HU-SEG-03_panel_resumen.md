@@ -1,39 +1,45 @@
-# Informe de Implementación: Panel Resumen del Día (HU-SEG-03 parcial)
+# Informe de Implementación: Panel Resumen del Día (Refinamiento: Separar Ingresos y Pendientes)
 
-## Resumen de los Cambios
+## 1. Estados de Turno Existentes
 
-Se implementó la vista de métricas clave para el día en curso en el Dashboard principal de la barbería. Estos cambios permiten a Matías visualizar el rendimiento diario de un vistazo.
+Tras analizar el código fuente (`app/Http/Requests/UpdateStaffTurnoRequest.php` y `resources/js/Pages/Turnos/Index.jsx`), se confirman los siguientes estados y cómo afectan a las nuevas métricas del panel:
 
-1. **Nuevo Controlador `DashboardController`:**
-   - Se reemplazó el Closure original en `routes/web.php` por un controlador invocable que prepara los datos del Dashboard.
-   - Todo el cálculo se realiza de manera eficiente en la base de datos usando Eloquent (consultas agregadas con `join`, `whereDate`, `sum`, `count`, etc.) para evitar cargar miles de turnos en memoria mediante PHP.
-   - Se utiliza correctamente la zona horaria del sistema (`America/Argentina/Buenos_Aires`) mediante el helper `today()` de Laravel para asegurar que los turnos a medianoche contabilicen en el día que corresponde.
+| Estado | Significado en negocio | Suma a Ingresos | Suma a Pendiente | Suma a Cant. Turnos |
+| :--- | :--- | :---: | :---: | :---: |
+| **`reservado`** | Turno agendado que aún no ocurrió o no se ha marcado. | ❌ | ✅ | ✅ |
+| **`confirmado`** | Turno validado por el cliente o staff (pendiente de atención). | ❌ | ✅ | ✅ |
+| **`completado`** | Turno atendido y finalizado. **El único que es ingreso real.** | ✅ | ❌ | ✅ |
+| **`ausente`** | El cliente no se presentó. | ❌ | ❌ | ✅ |
+| **`cancelado`** | Turno anulado, liberando la agenda. | ❌ | ❌ | ❌ |
 
-2. **Estados Contemplados:**
-   - **Cantidad de turnos del día:** Cuenta aquellos turnos que estén en estado `reservado`, `completado` o `ausente`.
-   - **Ingresos estimados del día:** Suma los ingresos de los turnos en estado `reservado` y `completado`. Se excluyen los `cancelado` y los `ausente` ya que estos últimos no abonan el servicio.
-   - **Servicio más solicitado:** Calcula la moda entre los servicios del día, excluyendo los turnos cancelados.
+## 2. Cambios Implementados
 
-3. **Interfaz de Usuario (React + Tailwind):**
-   - Se agregaron 3 tarjetas (cards) limpias con Tailwind para mostrar la Cantidad de Turnos, Ingresos (formateados a Pesos Argentinos) y el Servicio más solicitado.
-   - Se añadió un **estado vacío amigable**: Si la cantidad de turnos es cero, se muestra un mensaje "Sin turnos hoy" con un ícono, ocultando las métricas en 0 para evitar confusión.
-   - Se dejó un contenedor (`#quick-schedule-placeholder`) reservado en la cabecera para incorporar el futuro botón de "Agendado rápido".
+1. **Separación de métricas financieras:**
+   - **Ingresos del día:** Ahora suma estrictamente los turnos pasados a estado `completado`.
+   - **Pendiente por cobrar:** Suma los turnos que están vigentes en el día pero aún no fueron atendidos (`reservado` y `confirmado`). Se muestra de forma visualmente diferenciada (fondo gris, borde amarillo) para denotar que es una proyección.
 
-4. **Deuda Técnica Identificada (Aviso):**
-   - *Histórico de precios:* Actualmente, el sistema lee el precio del servicio directamente desde `Item_Catalogo`. Si se modifica un precio, los cálculos de ingresos históricos cambiarán. Se acordó postergar la implementación de la tabla o campo de precios históricos para otro momento.
+2. **Desglose de cantidad de turnos:**
+   - La métrica principal sigue mostrando el total del día (excluyendo cancelados).
+   - Se añadió un subtexto explicativo: `X atendidos / Y pendientes`.
 
-## Cómo Probar
+3. **Restricción estricta de negocio:**
+   - No se aplicó ninguna regla automática basada en la hora. Un turno de las 10:00 AM que siga figurando como `reservado` a las 18:00 PM seguirá sumando al "Pendiente por cobrar" y no a los "Ingresos" hasta que el staff lo marque explícitamente como `completado` o `ausente`.
 
-1. **Prueba de Estado Vacío:**
-   - Inicia sesión y asegúrate de no tener ningún turno agendado para hoy.
-   - Deberías ver un recuadro central con un ícono que dice "Sin turnos hoy" y ningún número "0".
+## 3. Pruebas y Evidencia
 
-2. **Prueba de Creación y Sumatorias:**
-   - Crea un turno para hoy (por ejemplo, un "Corte" de $5000). Al volver al Dashboard, debería decir 1 turno y $5000 estimados.
-   - Crea un turno para hoy y **márcalo como "ausente"**. El número de turnos debería subir a 2, pero los ingresos deben seguir siendo $5000.
-   - Crea un turno y **márcalo como "cancelado"**. Ninguno de los dos números debería subir.
-   - Crea un turno **cerca de la medianoche local** y comprueba que contabilice correctamente en la fecha de hoy, demostrando que la zona horaria funciona.
+Se ejecutó el test automatizado `DashboardTest::test_dashboard_calculates_daily_metrics_correctly` simulando exactamente el caso de prueba obligatorio reportado:
+1. Se creó un turno en estado `reservado` para hoy.
+   *Resultado comprobado:* `ingresosHoy` se mantuvo en $0, pero `pendienteCobro` subió a $5.000.
+2. Se creó un turno de ayer en estado `completado`.
+   *Resultado comprobado:* No afectó ninguna métrica de hoy.
+3. Se creó un turno para hoy en estado `cancelado`.
+   *Resultado comprobado:* No afectó ni el pendiente, ni los ingresos, ni la cantidad de turnos.
+4. Se creó un turno para hoy en estado `completado`.
+   *Resultado comprobado:* Aumentó `ingresosHoy` a $5.000, reflejando el ingreso real.
 
-3. **Tests Automatizados:**
-   - Se incluyó la prueba `DashboardTest` que simula este mismo escenario completo. Puedes ejecutarla con:
-     `php artisan test --filter=DashboardTest`
+Comandos ejecutados:
+`php artisan test --filter=DashboardTest` (Resultado: 2 tests pasados, 32 aserciones correctas).
+
+## 4. Preguntas Abiertas para el Dueño
+
+- El sistema no cambia los estados automáticamente con el paso del tiempo. Si llega el final del día y hay turnos que quedaron en "reservado" pero que en realidad no asistieron, ¿prefieres que queden como pendientes o implementarás luego un cierre de caja que los pase a "ausente" masivamente?

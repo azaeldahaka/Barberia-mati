@@ -17,26 +17,42 @@ class DashboardController extends Controller
     {
         $hoy = today(); // Usa America/Argentina/Buenos_Aires configurado en app.php
 
-        $cantidadTurnosHoy = Turno::whereDate('fecha_hora_inicio', $hoy)
-            ->whereIn('estado', ['reservado', 'completado', 'ausente'])
+        $turnosTotales = Turno::whereDate('fecha_hora_inicio', $hoy)
+            ->whereIn('estado', ['reservado', 'confirmado', 'completado', 'ausente'])
+            ->count();
+            
+        $turnosCompletados = Turno::whereDate('fecha_hora_inicio', $hoy)
+            ->where('estado', 'completado')
+            ->count();
+            
+        $turnosPendientes = Turno::whereDate('fecha_hora_inicio', $hoy)
+            ->whereIn('estado', ['reservado', 'confirmado'])
             ->count();
 
-        $ingresosEstimadosHoy = Turno::join('item_catalogos', 'turnos.item_catalogo_id', '=', 'item_catalogos.id')
+        $ingresosHoy = Turno::join('item_catalogos', 'turnos.item_catalogo_id', '=', 'item_catalogos.id')
             ->whereDate('turnos.fecha_hora_inicio', $hoy)
-            ->whereIn('turnos.estado', ['reservado', 'completado'])
+            ->where('turnos.estado', 'completado')
+            ->sum('item_catalogos.precio');
+            
+        $pendienteCobro = Turno::join('item_catalogos', 'turnos.item_catalogo_id', '=', 'item_catalogos.id')
+            ->whereDate('turnos.fecha_hora_inicio', $hoy)
+            ->whereIn('turnos.estado', ['reservado', 'confirmado'])
             ->sum('item_catalogos.precio');
 
         $servicioMasSolicitado = Turno::join('item_catalogos', 'turnos.item_catalogo_id', '=', 'item_catalogos.id')
             ->whereDate('turnos.fecha_hora_inicio', $hoy)
-            ->whereIn('turnos.estado', ['reservado', 'completado', 'ausente'])
+            ->whereIn('turnos.estado', ['reservado', 'confirmado', 'completado', 'ausente'])
             ->select('item_catalogos.nombre', DB::raw('count(turnos.id) as cantidad'))
             ->groupBy('item_catalogos.nombre')
             ->orderByDesc('cantidad')
             ->first();
 
         return Inertia::render('Dashboard', [
-            'cantidadTurnosHoy' => $cantidadTurnosHoy,
-            'ingresosEstimadosHoy' => (float) $ingresosEstimadosHoy,
+            'turnosTotales' => $turnosTotales,
+            'turnosCompletados' => $turnosCompletados,
+            'turnosPendientes' => $turnosPendientes,
+            'ingresosHoy' => (float) $ingresosHoy,
+            'pendienteCobro' => (float) $pendienteCobro,
             'servicioMasSolicitado' => $servicioMasSolicitado ? $servicioMasSolicitado->nombre : null,
         ]);
     }

@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 
-export default function Dashboard({ cantidadTurnosHoy, ingresosEstimadosHoy, servicioMasSolicitado }) {
+export default function Dashboard({ turnosTotales, turnosCompletados, turnosPendientes, ingresosHoy, pendienteCobro, servicioMasSolicitado }) {
     // Formatear moneda en ARS
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('es-AR', {
@@ -28,7 +28,7 @@ export default function Dashboard({ cantidadTurnosHoy, ingresosEstimadosHoy, ser
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     
-                    {cantidadTurnosHoy === 0 ? (
+                    {turnosTotales === 0 ? (
                         <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                             <div className="p-12 text-center text-gray-500">
                                 <svg className="mx-auto mb-4 h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -40,39 +40,44 @@ export default function Dashboard({ cantidadTurnosHoy, ingresosEstimadosHoy, ser
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                            {/* Tarjeta: Ingresos del día */}
+                            <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg relative border-l-4 border-green-500">
+                                <div className="p-6">
+                                    <dt className="truncate text-sm font-medium text-gray-500">
+                                        Ingresos del día
+                                    </dt>
+                                    <dd className="mt-2 text-3xl font-semibold tracking-tight text-gray-900">
+                                        {formatCurrency(ingresosHoy)}
+                                    </dd>
+                                    <p className="mt-1 text-xs text-gray-500">Solo turnos completados</p>
+                                </div>
+                            </div>
+
+                            {/* Tarjeta: Pendiente por cobrar */}
+                            <div className="overflow-hidden bg-gray-50 shadow-sm sm:rounded-lg border border-gray-200 border-l-4 border-yellow-400">
+                                <div className="p-6">
+                                    <dt className="truncate text-sm font-medium text-gray-500">
+                                        Pendiente por cobrar
+                                    </dt>
+                                    <dd className="mt-2 text-3xl font-semibold tracking-tight text-gray-700">
+                                        {formatCurrency(pendienteCobro)}
+                                    </dd>
+                                    <p className="mt-1 text-xs text-gray-500">Estimado para {turnosPendientes} {turnosPendientes === 1 ? 'turno' : 'turnos'} pendientes</p>
+                                </div>
+                            </div>
+
                             {/* Tarjeta: Cantidad de turnos */}
                             <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                                 <div className="p-6">
                                     <dt className="truncate text-sm font-medium text-gray-500">
-                                        Turnos del día
+                                        Cantidad de turnos
                                     </dt>
-                                    <dd className="mt-2 text-3xl font-semibold tracking-tight text-gray-900">
-                                        {cantidadTurnosHoy}
+                                    <dd className="mt-2 text-3xl font-semibold tracking-tight text-gray-900 flex items-baseline gap-2">
+                                        {turnosTotales}
                                     </dd>
-                                </div>
-                            </div>
-
-                            {/* Tarjeta: Ingresos estimados */}
-                            <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                                <div className="p-6">
-                                    <dt className="truncate text-sm font-medium text-gray-500">
-                                        Ingresos estimados
-                                    </dt>
-                                    <dd className="mt-2 text-3xl font-semibold tracking-tight text-gray-900">
-                                        {formatCurrency(ingresosEstimadosHoy)}
-                                    </dd>
-                                </div>
-                            </div>
-
-                            {/* Tarjeta: Servicio más solicitado */}
-                            <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                                <div className="p-6">
-                                    <dt className="truncate text-sm font-medium text-gray-500">
-                                        Servicio más solicitado
-                                    </dt>
-                                    <dd className="mt-2 truncate text-3xl font-semibold tracking-tight text-gray-900">
-                                        {servicioMasSolicitado || '-'}
-                                    </dd>
+                                    <p className="mt-1 text-xs text-gray-500">
+                                        {turnosCompletados} atendidos / {turnosPendientes} pendientes
+                                    </p>
                                 </div>
                             </div>
                         </div>
