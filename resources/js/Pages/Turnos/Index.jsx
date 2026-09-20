@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import BackButton from '@/Components/BackButton';
+import Modal from '@/Components/Modal';
+import PrimaryButton from '@/Components/PrimaryButton';
+import SecondaryButton from '@/Components/SecondaryButton';
+import InputLabel from '@/Components/InputLabel';
+import InputError from '@/Components/InputError';
 
 // Helpers para fechas
 const getStartOfWeek = (date) => {
@@ -28,14 +33,50 @@ const HOURS = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]; // Horario fijo seg�
 const PIXELS_PER_MINUTE = 1; // 60px por hora
 const HOUR_HEIGHT = 60;
 const START_HOUR = 12;
+const MIN_BLOCK_HEIGHT = 45; // Minimum height for readability
 
-export default function Index({ turnos, filters }) {
+export default function Index({ turnos, itemCatalogos, filters }) {
     const [viewType, setViewType] = useState(filters.view || 'day');
+    const [selectedTurno, setSelectedTurno] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
     
     // Convertimos de '2026-09-10' a Date local en tiempo de montado
     const [currentDate, setCurrentDate] = useState(() => {
         return filters.start ? new Date(filters.start + 'T00:00:00') : new Date();
     });
+
+    const { data, setData, put, processing, errors, reset, clearErrors } = useForm({
+        item_catalogo_id: '',
+        fecha_hora_inicio: '',
+        estado: '',
+    });
+
+    const openTurnoModal = (turno) => {
+        setSelectedTurno(turno);
+        setIsEditing(false);
+        setData({
+            item_catalogo_id: turno.item_catalogo_id,
+            fecha_hora_inicio: turno.fecha_hora_inicio.replace(' ', 'T'),
+            estado: turno.estado,
+        });
+        clearErrors();
+    };
+
+    const closeTurnoModal = () => {
+        setSelectedTurno(null);
+        setIsEditing(false);
+        reset();
+        clearErrors();
+    };
+
+    const handleEditSubmit = (e) => {
+        e.preventDefault();
+        put(route('turnos.update', selectedTurno.id), {
+            onSuccess: () => {
+                closeTurnoModal();
+            },
+        });
+    };
 
     const changeDateRange = (newDate, newViewType) => {
         let start, end;
@@ -74,10 +115,8 @@ export default function Index({ turnos, filters }) {
         changeDateRange(currentDate, newView);
     };
 
-    // Función para calcular estilos absolutos del bloque del turno
-    const getTurnoStyle = (turno) => {
-        // En Safari/iOS new Date("2026-09-10 14:00:00") falla.
-        // Al usar serializeDate, viene "2026-09-10 14:00:00", lo reemplazamos por "T"
+    // Función para calcular estilos absolutos del bloque del turno, con altura mínima sin superposición
+    const getTurnoStyle = (turno, dayTurnos) => {
         const safeDateStr = turno.fecha_hora_inicio.replace(' ', 'T');
         const start = new Date(safeDateStr);
         
@@ -88,9 +127,25 @@ export default function Index({ turnos, filters }) {
         const minutes = start.getMinutes();
 
         const durationMinutes = (end - start) / 60000;
-
+        const actualHeight = durationMinutes * PIXELS_PER_MINUTE;
         const top = ((hours - START_HOUR) * 60 + minutes) * PIXELS_PER_MINUTE;
-        const height = durationMinutes * PIXELS_PER_MINUTE;
+
+        // Find the next shift in the same day to calculate available gap
+        const nextTurnos = dayTurnos.filter(t => {
+            const tStart = new Date(t.fecha_hora_inicio.replace(' ', 'T'));
+            return tStart > start;
+        }).sort((a, b) => new Date(a.fecha_hora_inicio.replace(' ', 'T')) - new Date(b.fecha_hora_inicio.replace(' ', 'T')));
+
+        let maxAllowedHeight = Infinity;
+        if (nextTurnos.length > 0) {
+            const nextStart = new Date(nextTurnos[0].fecha_hora_inicio.replace(' ', 'T'));
+            const gapMinutes = (nextStart - start) / 60000;
+            maxAllowedHeight = gapMinutes * PIXELS_PER_MINUTE;
+        }
+
+        // The height should be at least MIN_BLOCK_HEIGHT, but not exceeding maxAllowedHeight
+        // If maxAllowedHeight < actualHeight (shouldn't happen due to overlap validation, but just in case), use actualHeight
+        const height = Math.max(actualHeight, Math.min(MIN_BLOCK_HEIGHT, maxAllowedHeight));
 
         return {
             top: `${top}px`,
@@ -104,9 +159,7 @@ export default function Index({ turnos, filters }) {
     // Filtramos turnos por día (útil para vista semanal)
     const getTurnosForDate = (date) => {
         const dateStr = formatDateForInput(date);
-        return turnos.filter(t => {
-            return t.fecha_hora_inicio.startsWith(dateStr);
-        });
+        return turnos.filter(t => t.fecha_hora_inicio.startsWith(dateStr));
     };
 
     // Render de un día específico
@@ -131,16 +184,29 @@ export default function Index({ turnos, filters }) {
                     {/* Turnos */}
                     {dayTurnos.map(turno => {
                         const isAusente = turno.estado === 'ausente';
+                        const style = getTurnoStyle(turno, dayTurnos);
+                        const durationMinutes = (new Date(turno.fecha_hora_fin.replace(' ', 'T')) - new Date(turno.fecha_hora_inicio.replace(' ', 'T'))) / 60000;
+                        const isShort = durationMinutes < 30; // Consider short if less than 30 mins
+
                         return (
                             <div
                                 key={turno.id}
-                                className={`rounded-md p-1 overflow-hidden shadow-sm border text-xs z-10 transition-colors
+                                onClick={() => openTurnoModal(turno)}
+                                className={`cursor-pointer rounded-md p-1 shadow-sm border text-xs z-10 transition-colors flex flex-col justify-start overflow-hidden
                                     ${isAusente ? 'bg-gray-100 border-gray-300 text-gray-500 opacity-80' : 'bg-blue-100 border-blue-300 text-blue-800'}`}
-                                style={getTurnoStyle(turno)}
+                                style={style}
                                 title={`${turno.item_catalogo.nombre} - ${turno.cliente.first_name} ${turno.cliente.last_name}`}
                             >
-                                <div className="font-semibold truncate">{turno.cliente.first_name} {turno.cliente.last_name}</div>
-                                <div className="truncate">{turno.item_catalogo.nombre}</div>
+                                <div className="font-semibold truncate leading-tight flex justify-between items-center gap-1">
+                                    <span className="truncate">{turno.cliente.first_name} {turno.cliente.last_name}</span>
+                                    <span className="font-normal whitespace-nowrap hidden sm:inline">${turno.item_catalogo.precio}</span>
+                                </div>
+                                <div className="truncate leading-tight opacity-90">
+                                    {turno.item_catalogo.nombre}
+                                </div>
+                                <div className="text-[10px] opacity-75 truncate">
+                                    {turno.fecha_hora_inicio.substring(11, 16)} - {turno.fecha_hora_fin.substring(11, 16)}
+                                </div>
                             </div>
                         )
                     })}
@@ -235,6 +301,136 @@ export default function Index({ turnos, filters }) {
                     </div>
                 </div>
             </div>
+
+            {/* Turno Detail/Edit Modal */}
+            <Modal show={!!selectedTurno} onClose={closeTurnoModal}>
+                {selectedTurno && (
+                    <div className="p-6">
+                        <div className="flex justify-between items-start mb-4">
+                            <h2 className="text-xl font-bold text-gray-900">
+                                {isEditing ? 'Editar Turno' : 'Detalles del Turno'}
+                            </h2>
+                            <button onClick={closeTurnoModal} className="text-gray-400 hover:text-gray-600">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
+
+                        {!isEditing ? (
+                            <div className="space-y-4">
+                                <div className="bg-gray-50 p-4 rounded-lg">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <span className="block text-sm text-gray-500">Cliente</span>
+                                            <span className="font-semibold">{selectedTurno.cliente.first_name} {selectedTurno.cliente.last_name}</span>
+                                            {selectedTurno.cliente.apodo && (
+                                                <span className="text-gray-500 text-sm ml-1">"{selectedTurno.cliente.apodo}"</span>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <span className="block text-sm text-gray-500">Servicio</span>
+                                            <span className="font-semibold">{selectedTurno.item_catalogo.nombre}</span>
+                                        </div>
+                                        <div>
+                                            <span className="block text-sm text-gray-500">Fecha</span>
+                                            <span className="font-semibold capitalize">
+                                                {new Date(selectedTurno.fecha_hora_inicio.replace(' ', 'T')).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span className="block text-sm text-gray-500">Horario</span>
+                                            <span className="font-semibold">
+                                                {selectedTurno.fecha_hora_inicio.substring(11, 16)} - {selectedTurno.fecha_hora_fin.substring(11, 16)}
+                                            </span>
+                                            <span className="text-gray-500 text-sm ml-2">
+                                                ({selectedTurno.item_catalogo.duracion_minutos} min)
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span className="block text-sm text-gray-500">Costo</span>
+                                            <span className="font-semibold text-green-600">${selectedTurno.item_catalogo.precio}</span>
+                                        </div>
+                                        <div>
+                                            <span className="block text-sm text-gray-500">Estado</span>
+                                            <span className={`inline-block px-2 py-1 rounded text-xs font-semibold uppercase
+                                                ${selectedTurno.estado === 'reservado' ? 'bg-blue-100 text-blue-800' : 
+                                                  selectedTurno.estado === 'ausente' ? 'bg-gray-200 text-gray-600' : 
+                                                  'bg-green-100 text-green-800'}`}>
+                                                {selectedTurno.estado}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex justify-end pt-4">
+                                    <PrimaryButton onClick={() => setIsEditing(true)}>
+                                        Editar
+                                    </PrimaryButton>
+                                </div>
+                            </div>
+                        ) : (
+                            <form onSubmit={handleEditSubmit} className="space-y-4">
+                                <div>
+                                    <InputLabel htmlFor="item_catalogo_id" value="Servicio" />
+                                    <select
+                                        id="item_catalogo_id"
+                                        className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                        value={data.item_catalogo_id}
+                                        onChange={e => setData('item_catalogo_id', e.target.value)}
+                                        required
+                                    >
+                                        <option value="">Seleccione un servicio</option>
+                                        {itemCatalogos?.map(item => (
+                                            <option key={item.id} value={item.id}>
+                                                {item.nombre} - ${item.precio} ({item.duracion_minutos} min)
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <InputError message={errors.item_catalogo_id} className="mt-2" />
+                                </div>
+
+                                <div>
+                                    <InputLabel htmlFor="fecha_hora_inicio" value="Fecha y Hora de Inicio" />
+                                    <input
+                                        type="datetime-local"
+                                        id="fecha_hora_inicio"
+                                        className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                        value={data.fecha_hora_inicio}
+                                        onChange={e => setData('fecha_hora_inicio', e.target.value)}
+                                        required
+                                    />
+                                    <InputError message={errors.fecha_hora_inicio} className="mt-2" />
+                                </div>
+
+                                <div>
+                                    <InputLabel htmlFor="estado" value="Estado" />
+                                    <select
+                                        id="estado"
+                                        className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                        value={data.estado}
+                                        onChange={e => setData('estado', e.target.value)}
+                                        required
+                                    >
+                                        <option value="reservado">Reservado</option>
+                                        <option value="confirmado">Confirmado</option>
+                                        <option value="completado">Completado</option>
+                                        <option value="ausente">Ausente</option>
+                                        <option value="cancelado">Cancelado</option>
+                                    </select>
+                                    <InputError message={errors.estado} className="mt-2" />
+                                </div>
+
+                                <div className="flex justify-end gap-2 pt-4">
+                                    <SecondaryButton onClick={() => setIsEditing(false)}>
+                                        Cancelar
+                                    </SecondaryButton>
+                                    <PrimaryButton disabled={processing}>
+                                        Guardar Cambios
+                                    </PrimaryButton>
+                                </div>
+                            </form>
+                        )}
+                    </div>
+                )}
+            </Modal>
         </AuthenticatedLayout>
     );
 }

@@ -7,6 +7,7 @@ use App\Actions\Turnos\CalculateTurnoEndTimeAction;
 use App\Actions\Turnos\CheckTurnoOverlapAction;
 use App\Actions\Turnos\ValidateTurnoBusinessHoursAction;
 use App\Http\Requests\StoreStaffTurnoRequest;
+use App\Http\Requests\UpdateStaffTurnoRequest;
 use App\Models\Client;
 use App\Models\ItemCatalogo;
 use App\Models\Turno;
@@ -45,8 +46,11 @@ class TurnoController extends Controller
 
         $turnos = $query->orderBy('fecha_hora_inicio', 'asc')->get();
 
+        $itemCatalogos = ItemCatalogo::where('barberia_id', $user->barberia_id)->get();
+
         return Inertia::render('Turnos/Index', [
             'turnos' => $turnos,
+            'itemCatalogos' => $itemCatalogos,
             'filters' => [
                 'start' => $start,
                 'end' => $end,
@@ -119,5 +123,49 @@ class TurnoController extends Controller
         ]);
 
         return redirect()->route('turnos.index')->with('status', 'Turno agendado exitosamente.');
+    }
+
+    public function update(
+        UpdateStaffTurnoRequest $request,
+        Turno $turno,
+        CalculateTurnoEndTimeAction $calculateEndTimeAction,
+        ValidateTurnoBusinessHoursAction $validateBusinessHoursAction,
+        CheckTurnoOverlapAction $checkOverlapAction
+    ): RedirectResponse {
+        $validated = $request->validated();
+        $user = Auth::user();
+
+        // Ensure the turno belongs to the user's barberia
+        if ($turno->barberia_id !== $user->barberia_id) {
+            abort(403);
+        }
+
+        $itemCatalogo = ItemCatalogo::findOrFail($validated['item_catalogo_id']);
+        $fechaHoraInicio = Carbon::parse($validated['fecha_hora_inicio']);
+
+        // Calcular fecha de fin
+        $fechaHoraFin = $calculateEndTimeAction->execute($itemCatalogo, $fechaHoraInicio);
+
+        // Validar horario comercial
+        $isValidHours = $validateBusinessHoursAction->execute($user->barberia, $fechaHoraInicio, $fechaHoraFin);
+        if (! $isValidHours) {
+            return back()->withErrors(['fecha_hora_inicio' => 'El turno debe estar dentro del horario de atención de la barbería.'])->withInput();
+        }
+
+        // Verificar superposición excluyendo el turno actual
+        $hasOverlap = $checkOverlapAction->execute($user->barberia_id, $fechaHoraInicio, $fechaHoraFin, $turno->id);
+        if ($hasOverlap) {
+            return back()->withErrors(['fecha_hora_inicio' => 'El horario seleccionado se superpone con otro turno existente.'])->withInput();
+        }
+
+        // Actualizar turno
+        $turno->update([
+            'item_catalogo_id' => $itemCatalogo->id,
+            'fecha_hora_inicio' => $fechaHoraInicio,
+            'fecha_hora_fin' => $fechaHoraFin,
+            'estado' => $validated['estado'],
+        ]);
+
+        return redirect()->route('turnos.index')->with('status', 'Turno actualizado exitosamente.');
     }
 }

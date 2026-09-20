@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\ClientRegistrationController;
 use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -25,7 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('services', ServiceController::class)->except(['create', 'show', 'edit']);
-    Route::resource('turnos', TurnoController::class)->only(['index', 'create', 'store']);
+    Route::resource('turnos', TurnoController::class)->only(['index', 'create', 'store', 'update']);
 });
 
 use App\Http\Controllers\PublicTurnoController;
