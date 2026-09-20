@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
+use App\Models\ItemCatalogo;
 use App\Models\Turno;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -20,11 +23,11 @@ class DashboardController extends Controller
         $turnosTotales = Turno::whereDate('fecha_hora_inicio', $hoy)
             ->whereIn('estado', ['reservado', 'confirmado', 'completado', 'ausente'])
             ->count();
-            
+
         $turnosCompletados = Turno::whereDate('fecha_hora_inicio', $hoy)
             ->where('estado', 'completado')
             ->count();
-            
+
         $turnosPendientes = Turno::whereDate('fecha_hora_inicio', $hoy)
             ->whereIn('estado', ['reservado', 'confirmado'])
             ->count();
@@ -33,7 +36,7 @@ class DashboardController extends Controller
             ->whereDate('turnos.fecha_hora_inicio', $hoy)
             ->where('turnos.estado', 'completado')
             ->sum('item_catalogos.precio');
-            
+
         $pendienteCobro = Turno::join('item_catalogos', 'turnos.item_catalogo_id', '=', 'item_catalogos.id')
             ->whereDate('turnos.fecha_hora_inicio', $hoy)
             ->whereIn('turnos.estado', ['reservado', 'confirmado'])
@@ -54,6 +57,8 @@ class DashboardController extends Controller
             'ingresosHoy' => (float) $ingresosHoy,
             'pendienteCobro' => (float) $pendienteCobro,
             'servicioMasSolicitado' => $servicioMasSolicitado ? $servicioMasSolicitado->nombre : null,
+            'clients' => Inertia::defer(fn () => Client::select('id', 'first_name', 'last_name', 'apodo', 'phone')->orderBy('first_name')->get()),
+            'itemCatalogos' => Inertia::defer(fn () => ItemCatalogo::where('barberia_id', Auth::user()->barberia_id)->get()),
         ]);
     }
 }

@@ -199,7 +199,7 @@ export default function Index({ turnos, itemCatalogos, filters }) {
                             >
                                 <div className="font-semibold truncate leading-tight flex justify-between items-center gap-1">
                                     <span className="truncate">{turno.cliente.first_name} {turno.cliente.last_name}</span>
-                                    <span className="font-normal whitespace-nowrap hidden sm:inline">${turno.item_catalogo.precio}</span>
+                                    <span className="font-normal whitespace-nowrap">${turno.item_catalogo.precio}</span>
                                 </div>
                                 <div className="truncate leading-tight opacity-90">
                                     {turno.item_catalogo.nombre}
