@@ -2,10 +2,11 @@ import { Head, Link, useForm, router } from '@inertiajs/react';
 import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
+import BackButton from '@/Components/BackButton';
 import { useState, useMemo, useEffect } from 'react';
 
 export default function PublicCreate({ itemCatalogos, turnosDelDia, selectedDate, has_client, pending_turno, horario_apertura, horario_cierre, flash }) {
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors, isDirty } = useForm({
         item_catalogo_id: pending_turno?.item_catalogo_id || '',
         fecha_hora_inicio: pending_turno?.fecha_hora_inicio || '',
     });
@@ -107,8 +108,10 @@ export default function PublicCreate({ itemCatalogos, turnosDelDia, selectedDate
                         <div className="p-6 text-gray-900 dark:text-gray-100">
                             
                             <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-2xl font-bold">Reservar un Turno</h2>
-                                <Link href="/" className="text-sm text-indigo-600 dark:text-indigo-400 underline">Volver al inicio</Link>
+                                <div className="flex items-center">
+                                    <BackButton fallback="/" isDirty={isDirty} className="mr-4" />
+                                    <h2 className="text-2xl font-bold">Reservar un Turno</h2>
+                                </div>
                             </div>
 
                             {flash?.status && (

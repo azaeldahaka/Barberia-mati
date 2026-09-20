@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
+import BackButton from '@/Components/BackButton';
 
 // Helpers para fechas
 const getStartOfWeek = (date) => {
@@ -161,7 +162,10 @@ export default function Index({ turnos, filters }) {
         <AuthenticatedLayout
             header={
                 <div className="flex justify-between items-center">
-                    <h2 className="font-semibold text-xl text-gray-800 leading-tight">Agenda (Turnos)</h2>
+                    <div className="flex items-center">
+                        <BackButton fallback={route('dashboard')} className="mr-4" />
+                        <h2 className="font-semibold text-xl text-gray-800 leading-tight">Agenda (Turnos)</h2>
+                    </div>
                     <Link
                         href={route('turnos.create')}
                         className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"

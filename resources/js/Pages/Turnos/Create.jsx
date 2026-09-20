@@ -4,12 +4,13 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
+import BackButton from '@/Components/BackButton';
 import { useState } from 'react';
 
 export default function Create({ clients, itemCatalogos }) {
     const [isNewClient, setIsNewClient] = useState(false);
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors, isDirty } = useForm({
         client_id: '',
         first_name: '',
         last_name: '',
@@ -25,7 +26,12 @@ export default function Create({ clients, itemCatalogos }) {
 
     return (
         <AuthenticatedLayout
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Agendar Turno (Staff)</h2>}
+            header={
+                <div className="flex items-center">
+                    <BackButton fallback={route('turnos.index')} isDirty={isDirty} className="mr-4" />
+                    <h2 className="font-semibold text-xl text-gray-800 leading-tight">Agendar Turno (Staff)</h2>
+                </div>
+            }
         >
             <Head title="Agendar Turno" />
 

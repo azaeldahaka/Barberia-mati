@@ -4,6 +4,7 @@ import { useState } from 'react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import ServiceFormModal from './Partials/ServiceFormModal';
 import DeleteServiceModal from './Partials/DeleteServiceModal';
+import BackButton from '@/Components/BackButton';
 
 export default function Index({ auth, services }) {
     const { flash } = usePage().props;
@@ -29,7 +30,12 @@ export default function Index({ auth, services }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Servicios</h2>}
+            header={
+                <div className="flex items-center">
+                    <BackButton fallback={route('dashboard')} className="mr-4" />
+                    <h2 className="font-semibold text-xl text-gray-800 leading-tight">Servicios</h2>
+                </div>
+            }
         >
             <Head title="Servicios" />
 
