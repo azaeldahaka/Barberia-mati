@@ -122,6 +122,10 @@ class TurnoController extends Controller
             'estado' => 'reservado',
         ]);
 
+        if ($request->boolean('redirect_to_dashboard')) {
+            return back()->with('status', 'Turno agendado exitosamente.');
+        }
+
         return redirect()->route('turnos.index')->with('status', 'Turno agendado exitosamente.');
     }
 

@@ -1,7 +1,14 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
+import PrimaryButton from '@/Components/PrimaryButton';
+import Modal from '@/Components/Modal';
+import TurnoForm from '@/Components/TurnoForm';
+import { useState } from 'react';
 
-export default function Dashboard({ turnosTotales, turnosCompletados, turnosPendientes, ingresosHoy, pendienteCobro, servicioMasSolicitado }) {
+export default function Dashboard({ turnosTotales, turnosCompletados, turnosPendientes, ingresosHoy, pendienteCobro, servicioMasSolicitado, clients, itemCatalogos }) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isLoadingProps, setIsLoadingProps] = useState(false);
+
     // Formatear moneda en ARS
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('es-AR', {
@@ -11,6 +18,25 @@ export default function Dashboard({ turnosTotales, turnosCompletados, turnosPend
         }).format(value);
     };
 
+    const openModal = () => {
+        if (!clients || !itemCatalogos) {
+            setIsLoadingProps(true);
+            router.reload({
+                only: ['clients', 'itemCatalogos'],
+                onSuccess: () => {
+                    setIsLoadingProps(false);
+                    setIsModalOpen(true);
+                }
+            });
+        } else {
+            setIsModalOpen(true);
+        }
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
+
     return (
         <AuthenticatedLayout
             header={
@@ -18,8 +44,11 @@ export default function Dashboard({ turnosTotales, turnosCompletados, turnosPend
                     <h2 className="text-xl font-semibold leading-tight text-gray-800">
                         Resumen del Día
                     </h2>
-                    {/* Espacio reservado para el botón de agendado rápido (HU-TUR-01 refine) */}
-                    <div id="quick-schedule-placeholder"></div>
+                    <div id="quick-schedule-placeholder">
+                        <PrimaryButton onClick={openModal} disabled={isLoadingProps}>
+                            {isLoadingProps ? 'Cargando...' : 'Agendar Turno Rápido'}
+                        </PrimaryButton>
+                    </div>
                 </div>
             }
         >
@@ -84,6 +113,24 @@ export default function Dashboard({ turnosTotales, turnosCompletados, turnosPend
                     )}
                 </div>
             </div>
+
+            <Modal show={isModalOpen} onClose={closeModal} maxWidth="xl">
+                <div className="p-6">
+                    <h2 className="text-lg font-medium text-gray-900 mb-4">Agendar Turno Rápido</h2>
+                    {clients && itemCatalogos ? (
+                        <TurnoForm
+                            clients={clients}
+                            itemCatalogos={itemCatalogos}
+                            isDashboard={true}
+                            onSuccess={closeModal}
+                        />
+                    ) : (
+                        <div className="flex justify-center p-4">
+                            <span className="text-gray-500">Cargando...</span>
+                        </div>
+                    )}
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }
