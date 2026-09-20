@@ -60,7 +60,7 @@ class TurnoController extends Controller
         $user = Auth::user();
 
         return Inertia::render('Turnos/Create', [
-            'clients' => Client::orderBy('first_name')->get(),
+            'clients' => Client::select('id', 'first_name', 'last_name', 'apodo', 'phone')->orderBy('first_name')->get(),
             'itemCatalogos' => ItemCatalogo::where('barberia_id', $user->barberia_id)->get(),
         ]);
     }
@@ -83,6 +83,7 @@ class TurnoController extends Controller
             $client = $createClientAction->execute([
                 'first_name' => $validated['first_name'],
                 'last_name' => $validated['last_name'],
+                'apodo' => $validated['apodo'] ?? null,
                 'phone' => $validated['phone'],
             ]);
             $clientId = $client->id;

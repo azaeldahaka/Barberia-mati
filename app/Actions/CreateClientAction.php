@@ -14,6 +14,7 @@ class CreateClientAction
         return Client::create([
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
+            'apodo' => $data['apodo'] ?? null,
             'phone' => $data['phone'],
         ]);
     }
