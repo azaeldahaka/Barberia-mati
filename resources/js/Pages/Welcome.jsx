@@ -34,7 +34,7 @@ export default function Welcome({ auth }) {
                                 href={route('login')}
                                 className="w-full sm:w-auto rounded-lg bg-gray-900 px-8 py-4 text-white font-semibold text-lg hover:bg-gray-800 transition shadow-md"
                             >
-                                Ingreso Personal
+                                Acceso exclusivo personal
                             </Link>
                         )}
                     </div>
