@@ -10,6 +10,7 @@ export default function Register() {
     const { data, setData, post, processing, errors, isDirty } = useForm({
         first_name: '',
         last_name: '',
+        apodo: '',
         phone: '',
     });
 
@@ -59,6 +60,21 @@ export default function Register() {
                     />
 
                     <InputError message={errors.last_name} className="mt-2" />
+                </div>
+
+                <div className="mt-4">
+                    <InputLabel htmlFor="apodo" value="Apodo (Opcional)" />
+
+                    <TextInput
+                        id="apodo"
+                        name="apodo"
+                        value={data.apodo}
+                        className="mt-1 block w-full"
+                        autoComplete="nickname"
+                        onChange={(e) => setData('apodo', e.target.value)}
+                    />
+
+                    <InputError message={errors.apodo} className="mt-2" />
                 </div>
 
                 <div className="mt-4">

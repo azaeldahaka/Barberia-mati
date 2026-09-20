@@ -25,6 +25,7 @@ class StoreClientRequest extends FormRequest
         return [
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
+            'apodo' => ['nullable', 'string', 'max:50'],
             'phone' => ['required', 'string', 'min:8', 'max:20', 'regex:/^([0-9\s\-\+\(\)]*)$/', 'unique:clients,phone'],
         ];
     }

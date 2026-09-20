@@ -26,6 +26,7 @@ class StoreStaffTurnoRequest extends FormRequest
             'client_id' => ['nullable', 'exists:clients,id'],
             'first_name' => ['required_without:client_id', 'nullable', 'string', 'max:255'],
             'last_name' => ['required_without:client_id', 'nullable', 'string', 'max:255'],
+            'apodo' => ['nullable', 'string', 'max:50'],
             'phone' => ['required_without:client_id', 'nullable', 'string', 'max:255', 'unique:clients,phone'],
             'item_catalogo_id' => ['required', 'exists:item_catalogos,id'],
             'fecha_hora_inicio' => ['required', 'date', 'after_or_equal:now'],
