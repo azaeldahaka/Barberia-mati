@@ -26,7 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('services', ServiceController::class)->except(['create', 'show', 'edit']);
-    Route::resource('turnos', TurnoController::class)->only(['index', 'create', 'store']);
+    Route::resource('turnos', TurnoController::class)->only(['index', 'create', 'store', 'update']);
 });
 
 use App\Http\Controllers\PublicTurnoController;
