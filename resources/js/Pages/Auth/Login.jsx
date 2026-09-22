@@ -39,6 +39,29 @@ export default function Login({ status, canResetPassword }) {
                 </div>
             )}
 
+            {/* Tarjeta Informativa de Credenciales de Tester / Portafolio */}
+            <div className="mb-6 rounded-lg border border-indigo-100 bg-indigo-50/70 p-4 text-sm text-indigo-900 shadow-sm">
+                <div className="flex items-center gap-2 font-semibold text-indigo-950">
+                    <svg className="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Credenciales de Prueba (Portafolio)</span>
+                </div>
+                <p className="mt-1 text-xs text-indigo-700">
+                    Para evaluar el sistema e ingresar al Dashboard de gestión, podés ingresar con estas credenciales:
+                </p>
+                <div className="mt-2.5 rounded-md bg-white/90 p-2.5 font-mono text-xs border border-indigo-100 space-y-1">
+                    <div className="flex justify-between">
+                        <span className="text-gray-500">Email:</span>
+                        <span className="font-semibold text-gray-800 select-all">tester@barberia.com</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span className="text-gray-500">Contraseña:</span>
+                        <span className="font-semibold text-gray-800 select-all">tester123</span>
+                    </div>
+                </div>
+            </div>
+
             <form onSubmit={submit}>
                 <div>
                     <InputLabel htmlFor="email" value="Email" />

@@ -22,10 +22,14 @@ use App\Http\Controllers\TurnoController;
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::resource('services', ServiceController::class)->except(['create', 'show', 'edit']);
+    Route::middleware('prevent.demo')->group(function () {
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        Route::delete('/services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
+    });
+
+    Route::resource('services', ServiceController::class)->except(['create', 'show', 'edit', 'destroy']);
     Route::resource('turnos', TurnoController::class)->only(['index', 'create', 'store', 'update']);
 });
 
