@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'google_id', 'barberia_id'])]
+#[Fillable(['name', 'email', 'password', 'google_id', 'barberia_id', 'is_demo'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -28,7 +28,16 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_demo' => 'boolean',
         ];
+    }
+
+    /**
+     * Check if user is a demo account.
+     */
+    public function isDemo(): bool
+    {
+        return (bool) $this->is_demo;
     }
 
     /**
